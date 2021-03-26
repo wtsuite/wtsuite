@@ -6,8 +6,8 @@ import (
   "sync"
   
   "github.com/wtsuite/wtsuite/pkg/directives"
-  "github.com/wtsuite/wtsuite/pkg/files"
   "github.com/wtsuite/wtsuite/pkg/tokens/context"
+  "github.com/wtsuite/wtsuite/pkg/tokens/patterns"
   tokens "github.com/wtsuite/wtsuite/pkg/tokens/html"
   "github.com/wtsuite/wtsuite/pkg/tree"
   "github.com/wtsuite/wtsuite/pkg/styles"
@@ -23,7 +23,7 @@ type Transpiler struct {
 
 func NewTranspiler(compact bool, mathFontURL string) *Transpiler {
   // XXX: should this be done via SetEnv-like function(s) instead?
-  styles.MATH_FONT_URL = mathFontURL
+  directives.MATH_FONT_URL = mathFontURL
 
   return &Transpiler{
     directives.NewFileCache(), 
@@ -60,7 +60,7 @@ func (t *Transpiler) TranspileTemplate(path string, name string, args_ map[strin
     }
   }
 
-  fileScope, _, err := directives.BuildFile(t.fileCache, path, "", false, nil)
+  fileScope, _, err := directives.BuildFile(t.fileCache, path, false, nil)
   if err != nil {
     return nil, err
   }
@@ -87,7 +87,7 @@ func (t *Transpiler) TranspileTemplate(path string, name string, args_ map[strin
   if t.compact {
     output = root.Write("", "", "")
   } else {
-    output = root.Write("", tree.NL, tree.TAB)
+    output = root.Write("", patterns.NL, patterns.TAB)
   }
 
   b := []byte(output)
