@@ -1,4 +1,4 @@
-module github.com/computeportal/wtsuite
+module github.com/wtsuite/wtsuite
 
 go 1.15
 
