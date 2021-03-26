@@ -4,9 +4,9 @@ import (
   //"fmt"
   //"os"
 
-	"github.com/computeportal/wtsuite/pkg/tokens/context"
-	tokens "github.com/computeportal/wtsuite/pkg/tokens/html"
-	"github.com/computeportal/wtsuite/pkg/tree"
+	"github.com/wtsuite/wtsuite/pkg/tokens/context"
+	tokens "github.com/wtsuite/wtsuite/pkg/tokens/html"
+	"github.com/wtsuite/wtsuite/pkg/tree"
 )
 
 type TemplateNode struct {

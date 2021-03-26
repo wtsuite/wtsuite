@@ -1,6 +1,6 @@
 package serif
 
-import ( "github.com/computeportal/wtsuite/pkg/tokens/math/boundingbox" )
+import ( "github.com/wtsuite/wtsuite/pkg/tokens/math/boundingbox" )
 
 var UnitsPerEm = 1000
 

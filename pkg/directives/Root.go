@@ -1,8 +1,8 @@
 package directives
 
 import (
-	"github.com/computeportal/wtsuite/pkg/tree"
-	//"github.com/computeportal/wtsuite/pkg/tree/scripts"
+	"github.com/wtsuite/wtsuite/pkg/tree"
+	//"github.com/wtsuite/wtsuite/pkg/tree/scripts"
 )
 
 func NewRoot(cache *FileCache, path string) (*tree.Root, error) {

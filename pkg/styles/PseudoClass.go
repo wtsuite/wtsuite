@@ -3,7 +3,7 @@ package styles
 import (
   "strings"
 
-	"github.com/computeportal/wtsuite/pkg/tokens/raw"
+	"github.com/wtsuite/wtsuite/pkg/tokens/raw"
 )
 
 type PseudoClass interface {

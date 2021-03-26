@@ -6,15 +6,15 @@ import (
 	"io/ioutil"
 	"os"
 
-	"github.com/computeportal/wtsuite/pkg/directives"
-	"github.com/computeportal/wtsuite/pkg/files"
-	"github.com/computeportal/wtsuite/pkg/git"
-	"github.com/computeportal/wtsuite/pkg/parsers"
-	"github.com/computeportal/wtsuite/pkg/tokens/js"
-	"github.com/computeportal/wtsuite/pkg/tokens/js/macros"
-	"github.com/computeportal/wtsuite/pkg/tokens/js/values"
-	"github.com/computeportal/wtsuite/pkg/tokens/patterns"
-	"github.com/computeportal/wtsuite/pkg/tree/scripts"
+	"github.com/wtsuite/wtsuite/pkg/directives"
+	"github.com/wtsuite/wtsuite/pkg/files"
+	"github.com/wtsuite/wtsuite/pkg/git"
+	"github.com/wtsuite/wtsuite/pkg/parsers"
+	"github.com/wtsuite/wtsuite/pkg/tokens/js"
+	"github.com/wtsuite/wtsuite/pkg/tokens/js/macros"
+	"github.com/wtsuite/wtsuite/pkg/tokens/js/values"
+	"github.com/wtsuite/wtsuite/pkg/tokens/patterns"
+	"github.com/wtsuite/wtsuite/pkg/tree/scripts"
 )
 
 const (

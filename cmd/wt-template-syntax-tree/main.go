@@ -5,7 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/computeportal/wtsuite/pkg/parsers"
+	"github.com/wtsuite/wtsuite/pkg/parsers"
 )
 
 var (

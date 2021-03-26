@@ -1,7 +1,7 @@
 package prototypes
 
 import (
-  "github.com/computeportal/wtsuite/pkg/tokens/js/values"
+  "github.com/wtsuite/wtsuite/pkg/tokens/js/values"
 )
 
 func FillNodeJS_streamPackage(pkg values.Package) {

@@ -1,8 +1,8 @@
 package directives
 
 import (
-	tokens "github.com/computeportal/wtsuite/pkg/tokens/html"
-	"github.com/computeportal/wtsuite/pkg/tree"
+	tokens "github.com/wtsuite/wtsuite/pkg/tokens/html"
+	"github.com/wtsuite/wtsuite/pkg/tree"
 )
 
 type URINode struct {

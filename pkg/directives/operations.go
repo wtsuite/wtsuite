@@ -4,8 +4,8 @@ import (
   "strconv"
   "strings"
 
-	"github.com/computeportal/wtsuite/pkg/tokens/context"
-	tokens "github.com/computeportal/wtsuite/pkg/tokens/html"
+	"github.com/wtsuite/wtsuite/pkg/tokens/context"
+	tokens "github.com/wtsuite/wtsuite/pkg/tokens/html"
 )
 
 type Operation interface {

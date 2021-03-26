@@ -10,7 +10,7 @@ import (
   "strings"
   "time"
 
-  "github.com/computeportal/wtsuite/pkg/files"
+  "github.com/wtsuite/wtsuite/pkg/files"
 
   gitcore      "gopkg.in/src-d/go-git.v4"
   gitconfig    "gopkg.in/src-d/go-git.v4/config"

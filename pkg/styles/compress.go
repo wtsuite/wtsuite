@@ -3,7 +3,7 @@ package styles
 import (
   "strings"
 
-	"github.com/computeportal/wtsuite/pkg/tokens/patterns"
+	"github.com/wtsuite/wtsuite/pkg/tokens/patterns"
 )
 
 func compress(raw string) string {

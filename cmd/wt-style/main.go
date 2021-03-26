@@ -4,12 +4,12 @@ import (
   "fmt"
   "os"
 
-	"github.com/computeportal/wtsuite/pkg/files"
-	"github.com/computeportal/wtsuite/pkg/git"
-	"github.com/computeportal/wtsuite/pkg/parsers"
-	"github.com/computeportal/wtsuite/pkg/tokens/patterns"
-	"github.com/computeportal/wtsuite/pkg/tree"
-	"github.com/computeportal/wtsuite/pkg/styles"
+	"github.com/wtsuite/wtsuite/pkg/files"
+	"github.com/wtsuite/wtsuite/pkg/git"
+	"github.com/wtsuite/wtsuite/pkg/parsers"
+	"github.com/wtsuite/wtsuite/pkg/tokens/patterns"
+	"github.com/wtsuite/wtsuite/pkg/tree"
+	"github.com/wtsuite/wtsuite/pkg/styles"
 )
 
 const (

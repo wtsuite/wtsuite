@@ -1,8 +1,8 @@
 package shaders
 
 import (
-	"github.com/computeportal/wtsuite/pkg/tokens/glsl"
-	"github.com/computeportal/wtsuite/pkg/tokens/glsl/values"
+	"github.com/wtsuite/wtsuite/pkg/tokens/glsl"
+	"github.com/wtsuite/wtsuite/pkg/tokens/glsl/values"
 )
 
 type InitShaderFile struct {

@@ -3,10 +3,10 @@ package parsers
 import (
 	"reflect"
 
-	"github.com/computeportal/wtsuite/pkg/tokens/js"
-	"github.com/computeportal/wtsuite/pkg/tokens/js/macros"
-	"github.com/computeportal/wtsuite/pkg/tokens/patterns"
-	"github.com/computeportal/wtsuite/pkg/tokens/raw"
+	"github.com/wtsuite/wtsuite/pkg/tokens/js"
+	"github.com/wtsuite/wtsuite/pkg/tokens/js/macros"
+	"github.com/wtsuite/wtsuite/pkg/tokens/patterns"
+	"github.com/wtsuite/wtsuite/pkg/tokens/raw"
 )
 
 func (p *JSParser) buildCallArgs(t raw.Token) ([]js.Expression, error) {

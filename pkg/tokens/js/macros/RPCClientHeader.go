@@ -1,7 +1,7 @@
 package macros
 
 import (
-  "github.com/computeportal/wtsuite/pkg/tokens/js"
+  "github.com/wtsuite/wtsuite/pkg/tokens/js"
 )
 
 type RPCClientHeader struct {

@@ -1,8 +1,8 @@
 package directives
 
 import (
-	"github.com/computeportal/wtsuite/pkg/functions"
-	tokens "github.com/computeportal/wtsuite/pkg/tokens/html"
+	"github.com/wtsuite/wtsuite/pkg/functions"
+	tokens "github.com/wtsuite/wtsuite/pkg/tokens/html"
 )
 
 func For(scope Scope, node Node, tag *tokens.Tag) error {

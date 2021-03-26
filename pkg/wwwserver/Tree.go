@@ -7,7 +7,7 @@ import (
   "os"
   "strings"
 
-  "github.com/computeportal/wtsuite/pkg/files"
+  "github.com/wtsuite/wtsuite/pkg/files"
 )
 
 var DefaultIndexNames []string = []string{"index.html"}

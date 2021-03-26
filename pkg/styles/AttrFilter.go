@@ -3,8 +3,8 @@ package styles
 import (
   "strings"
 
-	tokens "github.com/computeportal/wtsuite/pkg/tokens/html"
-	"github.com/computeportal/wtsuite/pkg/tokens/raw"
+	tokens "github.com/wtsuite/wtsuite/pkg/tokens/html"
+	"github.com/wtsuite/wtsuite/pkg/tokens/raw"
 )
 
 type AttrFilter interface {

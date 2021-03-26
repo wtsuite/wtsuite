@@ -3,8 +3,8 @@ package math
 import (
 	"fmt"
 
-	"github.com/computeportal/wtsuite/pkg/tokens/math/boundingbox"
-	"github.com/computeportal/wtsuite/pkg/tokens/math/serif"
+	"github.com/wtsuite/wtsuite/pkg/tokens/math/boundingbox"
+	"github.com/wtsuite/wtsuite/pkg/tokens/math/serif"
 )
 
 const (

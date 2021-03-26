@@ -1,9 +1,9 @@
 package parsers
 
 import (
-	"github.com/computeportal/wtsuite/pkg/tokens/glsl"
-	"github.com/computeportal/wtsuite/pkg/tokens/patterns"
-	"github.com/computeportal/wtsuite/pkg/tokens/raw"
+	"github.com/wtsuite/wtsuite/pkg/tokens/glsl"
+	"github.com/wtsuite/wtsuite/pkg/tokens/patterns"
+	"github.com/wtsuite/wtsuite/pkg/tokens/raw"
 )
 
 func (p *GLSLParser) buildFunctionArgumentRole(ts  []raw.Token) (glsl.FunctionArgumentRole, []raw.Token, error) {

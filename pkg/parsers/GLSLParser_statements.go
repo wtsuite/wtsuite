@@ -3,9 +3,9 @@ package parsers
 import (
   "strings"
 
-	"github.com/computeportal/wtsuite/pkg/tokens/glsl"
-	"github.com/computeportal/wtsuite/pkg/tokens/patterns"
-	"github.com/computeportal/wtsuite/pkg/tokens/raw"
+	"github.com/wtsuite/wtsuite/pkg/tokens/glsl"
+	"github.com/wtsuite/wtsuite/pkg/tokens/patterns"
+	"github.com/wtsuite/wtsuite/pkg/tokens/raw"
 )
 
 func (p *GLSLParser) buildReturnStatement(ts []raw.Token) (*glsl.Return, []raw.Token, error) {

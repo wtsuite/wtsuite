@@ -3,7 +3,7 @@ package scripts
 import (
 	"strings"
 
-	"github.com/computeportal/wtsuite/pkg/files"
+	"github.com/wtsuite/wtsuite/pkg/files"
 )
 
 type InlineBundle struct {

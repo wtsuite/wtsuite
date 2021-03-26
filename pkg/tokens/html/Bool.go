@@ -3,8 +3,8 @@ package html
 import (
   "strings"
 
-	"github.com/computeportal/wtsuite/pkg/tokens/context"
-	"github.com/computeportal/wtsuite/pkg/tokens/patterns"
+	"github.com/wtsuite/wtsuite/pkg/tokens/context"
+	"github.com/wtsuite/wtsuite/pkg/tokens/patterns"
 )
 
 type Bool struct {

@@ -3,7 +3,7 @@ package scripts
 import (
 	"strings"
 
-	"github.com/computeportal/wtsuite/pkg/tokens/patterns"
+	"github.com/wtsuite/wtsuite/pkg/tokens/patterns"
 )
 
 type ControlFileScript struct {

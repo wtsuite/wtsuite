@@ -3,8 +3,8 @@ package functions
 import (
 	"math"
 
-	"github.com/computeportal/wtsuite/pkg/tokens/context"
-	tokens "github.com/computeportal/wtsuite/pkg/tokens/html"
+	"github.com/wtsuite/wtsuite/pkg/tokens/context"
+	tokens "github.com/wtsuite/wtsuite/pkg/tokens/html"
 )
 
 func floatToFloatMath(args_ *tokens.Parens, fn func(val float64) float64, ctx context.Context) (tokens.Token, error) {

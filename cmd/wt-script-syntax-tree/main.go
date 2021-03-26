@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/computeportal/wtsuite/pkg/directives"
-	"github.com/computeportal/wtsuite/pkg/parsers"
+	"github.com/wtsuite/wtsuite/pkg/directives"
+	"github.com/wtsuite/wtsuite/pkg/parsers"
 )
 
 var (

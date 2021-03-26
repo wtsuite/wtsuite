@@ -1,7 +1,7 @@
 package directives
 
 import (
-	"github.com/computeportal/wtsuite/pkg/functions"
+	"github.com/wtsuite/wtsuite/pkg/functions"
 )
 
 // BranchScope sends to exports to filescope (regular scopedata gives error)

@@ -3,7 +3,7 @@ package tree
 import (
 	"fmt"
 
-	"github.com/computeportal/wtsuite/pkg/tokens/context"
+	"github.com/wtsuite/wtsuite/pkg/tokens/context"
 )
 
 // only requires a subset of that tag methods

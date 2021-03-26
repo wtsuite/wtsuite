@@ -6,9 +6,9 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/computeportal/wtsuite/pkg/tokens/context"
-	"github.com/computeportal/wtsuite/pkg/tokens/patterns"
-	tokens "github.com/computeportal/wtsuite/pkg/tokens/raw"
+	"github.com/wtsuite/wtsuite/pkg/tokens/context"
+	"github.com/wtsuite/wtsuite/pkg/tokens/patterns"
+	tokens "github.com/wtsuite/wtsuite/pkg/tokens/raw"
 )
 
 var VERBOSITY = 0

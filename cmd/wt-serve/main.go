@@ -7,7 +7,7 @@ import (
   "strconv"
   "time"
 
-  "github.com/computeportal/wtsuite/pkg/parsers"
+  "github.com/wtsuite/wtsuite/pkg/parsers"
 )
 
 const DEFAULT_PORT = 8080

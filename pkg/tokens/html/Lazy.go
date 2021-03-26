@@ -3,7 +3,7 @@ package html
 import (
   "strings"
 
-	"github.com/computeportal/wtsuite/pkg/tokens/context"
+	"github.com/wtsuite/wtsuite/pkg/tokens/context"
 )
 
 // the number of children of a tag aren't available until after the tag has been fully processed, but the number of children can be useful inside the css (eg. to set the max height of a flexbox so that wrapping creates a column effect)

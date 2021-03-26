@@ -1,8 +1,8 @@
 package functions
 
 import (
-	"github.com/computeportal/wtsuite/pkg/tokens/context"
-	tokens "github.com/computeportal/wtsuite/pkg/tokens/html"
+	"github.com/wtsuite/wtsuite/pkg/tokens/context"
+	tokens "github.com/wtsuite/wtsuite/pkg/tokens/html"
 )
 
 // - convert a key list and value list into a dict

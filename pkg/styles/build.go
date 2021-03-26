@@ -3,10 +3,10 @@ package styles
 import (
   "strings"
 
-	"github.com/computeportal/wtsuite/pkg/directives"
-	"github.com/computeportal/wtsuite/pkg/tokens/context"
-	"github.com/computeportal/wtsuite/pkg/tokens/patterns"
-	tokens "github.com/computeportal/wtsuite/pkg/tokens/html"
+	"github.com/wtsuite/wtsuite/pkg/directives"
+	"github.com/wtsuite/wtsuite/pkg/tokens/context"
+	"github.com/wtsuite/wtsuite/pkg/tokens/patterns"
+	tokens "github.com/wtsuite/wtsuite/pkg/tokens/html"
 )
 
 func BuildDict(d *tokens.StringDict) (Sheet, error) {

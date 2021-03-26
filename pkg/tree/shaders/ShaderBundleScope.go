@@ -1,7 +1,7 @@
 package shaders
 
 import (
-	"github.com/computeportal/wtsuite/pkg/tokens/glsl"
+	"github.com/wtsuite/wtsuite/pkg/tokens/glsl"
 )
 
 type ShaderBundleScope struct {

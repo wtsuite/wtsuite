@@ -12,9 +12,9 @@ import (
   "strings"
 
   "golang.org/x/term"
-	"github.com/computeportal/wtsuite/pkg/directives"
-	"github.com/computeportal/wtsuite/pkg/parsers"
-	"github.com/computeportal/wtsuite/pkg/terminal"
+	"github.com/wtsuite/wtsuite/pkg/directives"
+	"github.com/wtsuite/wtsuite/pkg/parsers"
+	"github.com/wtsuite/wtsuite/pkg/terminal"
 )
 
 var cmdParser *parsers.CLIParser = nil

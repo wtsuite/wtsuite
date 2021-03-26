@@ -3,8 +3,8 @@ package glsl
 import (
 	"fmt"
 
-	"github.com/computeportal/wtsuite/pkg/tokens/context"
-	"github.com/computeportal/wtsuite/pkg/tokens/glsl/values"
+	"github.com/wtsuite/wtsuite/pkg/tokens/context"
+	"github.com/wtsuite/wtsuite/pkg/tokens/glsl/values"
 )
 
 type LiteralInt struct {

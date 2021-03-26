@@ -12,8 +12,8 @@ import (
   "strings"
   "sync"
 
-	"github.com/computeportal/wtsuite/pkg/files"
-	"github.com/computeportal/wtsuite/pkg/parsers"
+	"github.com/wtsuite/wtsuite/pkg/files"
+	"github.com/wtsuite/wtsuite/pkg/parsers"
 )
 
 var (

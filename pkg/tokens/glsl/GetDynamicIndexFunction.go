@@ -4,7 +4,7 @@ import (
   "strconv"
   "strings"
 
-	"github.com/computeportal/wtsuite/pkg/tokens/context"
+	"github.com/wtsuite/wtsuite/pkg/tokens/context"
 )
 
 type GetDynamicIndexFunction struct {

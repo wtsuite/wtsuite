@@ -4,11 +4,11 @@ import (
   "fmt"
   "os"
 
-	"github.com/computeportal/wtsuite/pkg/directives"
-	"github.com/computeportal/wtsuite/pkg/files"
-	"github.com/computeportal/wtsuite/pkg/git"
-	"github.com/computeportal/wtsuite/pkg/parsers"
-	_ "github.com/computeportal/wtsuite/pkg/styles" // for side-effect
+	"github.com/wtsuite/wtsuite/pkg/directives"
+	"github.com/wtsuite/wtsuite/pkg/files"
+	"github.com/wtsuite/wtsuite/pkg/git"
+	"github.com/wtsuite/wtsuite/pkg/parsers"
+	_ "github.com/wtsuite/wtsuite/pkg/styles" // for side-effect
 )
 
 const (

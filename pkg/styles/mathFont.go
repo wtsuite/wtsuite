@@ -5,9 +5,9 @@ import (
 	"io/ioutil"
   "strings"
 
-	"github.com/computeportal/wtsuite/pkg/directives"
-	"github.com/computeportal/wtsuite/pkg/tokens/patterns"
-	"github.com/computeportal/wtsuite/pkg/tokens/math/serif"
+	"github.com/wtsuite/wtsuite/pkg/directives"
+	"github.com/wtsuite/wtsuite/pkg/tokens/patterns"
+	"github.com/wtsuite/wtsuite/pkg/tokens/math/serif"
 )
 
 func writeMathFontFace(mathFontUrl string) string {

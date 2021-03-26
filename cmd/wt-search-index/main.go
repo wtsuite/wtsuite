@@ -12,15 +12,15 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/computeportal/wtsuite/pkg/directives"
-	"github.com/computeportal/wtsuite/pkg/files"
-	"github.com/computeportal/wtsuite/pkg/parsers"
-	"github.com/computeportal/wtsuite/pkg/styles"
-	"github.com/computeportal/wtsuite/pkg/tokens/context"
-	tokens "github.com/computeportal/wtsuite/pkg/tokens/html"
-	"github.com/computeportal/wtsuite/pkg/tokens/js"
-	"github.com/computeportal/wtsuite/pkg/tree"
-	"github.com/computeportal/wtsuite/pkg/tree/scripts"
+	"github.com/wtsuite/wtsuite/pkg/directives"
+	"github.com/wtsuite/wtsuite/pkg/files"
+	"github.com/wtsuite/wtsuite/pkg/parsers"
+	"github.com/wtsuite/wtsuite/pkg/styles"
+	"github.com/wtsuite/wtsuite/pkg/tokens/context"
+	tokens "github.com/wtsuite/wtsuite/pkg/tokens/html"
+	"github.com/wtsuite/wtsuite/pkg/tokens/js"
+	"github.com/wtsuite/wtsuite/pkg/tree"
+	"github.com/wtsuite/wtsuite/pkg/tree/scripts"
 )
 
 const (

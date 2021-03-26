@@ -5,7 +5,7 @@ import (
 	"io/ioutil"
 	"net/http"
   
-  "github.com/computeportal/wtsuite/pkg/files"
+  "github.com/wtsuite/wtsuite/pkg/files"
 )
 
 type File struct {

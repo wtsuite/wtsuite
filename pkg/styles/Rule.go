@@ -3,7 +3,7 @@ package styles
 import (
   "strings"
 
-	tokens "github.com/computeportal/wtsuite/pkg/tokens/html"
+	tokens "github.com/wtsuite/wtsuite/pkg/tokens/html"
 )
 
 type Rule interface {

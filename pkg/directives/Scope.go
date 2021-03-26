@@ -3,12 +3,12 @@ package directives
 import (
   "strings"
 
-	"github.com/computeportal/wtsuite/pkg/functions"
-	//"github.com/computeportal/wtsuite/pkg/parsers"
-	"github.com/computeportal/wtsuite/pkg/tokens/context"
-	tokens "github.com/computeportal/wtsuite/pkg/tokens/html"
-	"github.com/computeportal/wtsuite/pkg/tree"
-	"github.com/computeportal/wtsuite/pkg/tree/svg"
+	"github.com/wtsuite/wtsuite/pkg/functions"
+	//"github.com/wtsuite/wtsuite/pkg/parsers"
+	"github.com/wtsuite/wtsuite/pkg/tokens/context"
+	tokens "github.com/wtsuite/wtsuite/pkg/tokens/html"
+	"github.com/wtsuite/wtsuite/pkg/tree"
+	"github.com/wtsuite/wtsuite/pkg/tree/svg"
 )
 
 type Scope interface {

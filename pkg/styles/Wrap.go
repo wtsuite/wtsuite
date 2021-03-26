@@ -3,9 +3,9 @@ package styles
 import (
   "strings"
 
-	"github.com/computeportal/wtsuite/pkg/tokens/context"
-	tokens "github.com/computeportal/wtsuite/pkg/tokens/html"
-	"github.com/computeportal/wtsuite/pkg/tree"
+	"github.com/wtsuite/wtsuite/pkg/tokens/context"
+	tokens "github.com/wtsuite/wtsuite/pkg/tokens/html"
+	"github.com/wtsuite/wtsuite/pkg/tree"
 )
 
 // @wrap and @wrap-siblings are special at-rules that insert <div id=... class=.....> tags into the tree

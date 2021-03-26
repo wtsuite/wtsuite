@@ -3,7 +3,7 @@ package directives
 import (
   "sync"
 
-  tokens "github.com/computeportal/wtsuite/pkg/tokens/html"
+  tokens "github.com/wtsuite/wtsuite/pkg/tokens/html"
 )
 
 type fileCacheEntry struct {

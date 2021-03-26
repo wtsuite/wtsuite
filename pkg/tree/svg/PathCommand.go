@@ -3,8 +3,8 @@ package svg
 import (
 	"fmt"
 
-	"github.com/computeportal/wtsuite/pkg/tokens/context"
-	"github.com/computeportal/wtsuite/pkg/tree"
+	"github.com/wtsuite/wtsuite/pkg/tokens/context"
+	"github.com/wtsuite/wtsuite/pkg/tree"
 )
 
 var (

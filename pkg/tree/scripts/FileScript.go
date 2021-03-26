@@ -1,10 +1,10 @@
 package scripts
 
 import (
-	"github.com/computeportal/wtsuite/pkg/files"
-	"github.com/computeportal/wtsuite/pkg/parsers"
-	"github.com/computeportal/wtsuite/pkg/tokens/js"
-	"github.com/computeportal/wtsuite/pkg/tokens/patterns"
+	"github.com/wtsuite/wtsuite/pkg/files"
+	"github.com/wtsuite/wtsuite/pkg/parsers"
+	"github.com/wtsuite/wtsuite/pkg/tokens/js"
+	"github.com/wtsuite/wtsuite/pkg/tokens/patterns"
 )
 
 type FileScript interface {

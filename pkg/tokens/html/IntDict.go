@@ -1,7 +1,7 @@
 package html
 
 import (
-	"github.com/computeportal/wtsuite/pkg/tokens/context"
+	"github.com/wtsuite/wtsuite/pkg/tokens/context"
 )
 
 // IntDict is always the result of an evaluation

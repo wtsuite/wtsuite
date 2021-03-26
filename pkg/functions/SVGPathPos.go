@@ -3,9 +3,9 @@ package functions
 import (
 	"math"
 
-	"github.com/computeportal/wtsuite/pkg/tokens/context"
-	tokens "github.com/computeportal/wtsuite/pkg/tokens/html"
-	"github.com/computeportal/wtsuite/pkg/tree/svg"
+	"github.com/wtsuite/wtsuite/pkg/tokens/context"
+	tokens "github.com/wtsuite/wtsuite/pkg/tokens/html"
+	"github.com/wtsuite/wtsuite/pkg/tree/svg"
 )
 
 func SVGPathPos(scope tokens.Scope, args_ *tokens.Parens, ctx context.Context) (tokens.Token, error) {

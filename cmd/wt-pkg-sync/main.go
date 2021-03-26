@@ -9,9 +9,9 @@ import (
   "fmt"
   "os"
   
-  "github.com/computeportal/wtsuite/pkg/files"
-  "github.com/computeportal/wtsuite/pkg/git"
-  "github.com/computeportal/wtsuite/pkg/parsers"
+  "github.com/wtsuite/wtsuite/pkg/files"
+  "github.com/wtsuite/wtsuite/pkg/git"
+  "github.com/wtsuite/wtsuite/pkg/parsers"
 )
 
 var (

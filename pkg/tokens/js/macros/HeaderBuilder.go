@@ -3,7 +3,7 @@ package macros
 import (
   "strings"
 
-  pat "github.com/computeportal/wtsuite/pkg/tokens/patterns"
+  pat "github.com/wtsuite/wtsuite/pkg/tokens/patterns"
 )
 
 type HeaderBuilder struct {

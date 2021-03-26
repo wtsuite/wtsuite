@@ -3,8 +3,8 @@ package functions
 import (
 	"math"
 
-	"github.com/computeportal/wtsuite/pkg/tokens/context"
-	tokens "github.com/computeportal/wtsuite/pkg/tokens/html"
+	"github.com/wtsuite/wtsuite/pkg/tokens/context"
+	tokens "github.com/wtsuite/wtsuite/pkg/tokens/html"
 )
 
 func Px(scope tokens.Scope, args_ *tokens.Parens, ctx context.Context) (tokens.Token, error) {

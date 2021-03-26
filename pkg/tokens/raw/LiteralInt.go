@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/computeportal/wtsuite/pkg/tokens/context"
+	"github.com/wtsuite/wtsuite/pkg/tokens/context"
 )
 
 // distinct from Float because it is used for indexing in lists

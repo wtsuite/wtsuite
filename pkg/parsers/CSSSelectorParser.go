@@ -1,9 +1,9 @@
 package parsers
 
 import (
-	"github.com/computeportal/wtsuite/pkg/tokens/context"
-	"github.com/computeportal/wtsuite/pkg/tokens/patterns"
-	"github.com/computeportal/wtsuite/pkg/tokens/raw"
+	"github.com/wtsuite/wtsuite/pkg/tokens/context"
+	"github.com/wtsuite/wtsuite/pkg/tokens/patterns"
+	"github.com/wtsuite/wtsuite/pkg/tokens/raw"
 )
 
 func tokenizeCSSWordsAndLiterals(s string, ctx context.Context) (raw.Token, error) {

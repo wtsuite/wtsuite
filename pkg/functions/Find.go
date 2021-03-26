@@ -1,8 +1,8 @@
 package functions
 
 import (
-	"github.com/computeportal/wtsuite/pkg/tokens/context"
-	tokens "github.com/computeportal/wtsuite/pkg/tokens/html"
+	"github.com/wtsuite/wtsuite/pkg/tokens/context"
+	tokens "github.com/wtsuite/wtsuite/pkg/tokens/html"
 )
 
 func findWithFunction(scope tokens.Scope, arg0 *tokens.List, fn Fun, ctx context.Context) (tokens.Token, error) {

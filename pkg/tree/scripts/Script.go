@@ -1,7 +1,7 @@
 package scripts
 
 import (
-	"github.com/computeportal/wtsuite/pkg/files"
+	"github.com/wtsuite/wtsuite/pkg/files"
 )
 
 var (

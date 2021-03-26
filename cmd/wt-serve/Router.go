@@ -7,8 +7,8 @@ import (
   "path/filepath"
   "strings"
 
-  "github.com/computeportal/wtsuite/pkg/files"
-  "github.com/computeportal/wtsuite/pkg/wwwserver"
+  "github.com/wtsuite/wtsuite/pkg/files"
+  "github.com/wtsuite/wtsuite/pkg/wwwserver"
 )
 
 type Router struct {

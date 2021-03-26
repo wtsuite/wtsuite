@@ -8,12 +8,12 @@ import (
   "strconv"
   "strings"
 
-	"github.com/computeportal/wtsuite/pkg/directives"
-	"github.com/computeportal/wtsuite/pkg/files"
-	"github.com/computeportal/wtsuite/pkg/tokens/context"
-	tokens "github.com/computeportal/wtsuite/pkg/tokens/html"
-	"github.com/computeportal/wtsuite/pkg/tokens/raw"
-	"github.com/computeportal/wtsuite/pkg/styles"
+	"github.com/wtsuite/wtsuite/pkg/directives"
+	"github.com/wtsuite/wtsuite/pkg/files"
+	"github.com/wtsuite/wtsuite/pkg/tokens/context"
+	tokens "github.com/wtsuite/wtsuite/pkg/tokens/html"
+	"github.com/wtsuite/wtsuite/pkg/tokens/raw"
+	"github.com/wtsuite/wtsuite/pkg/styles"
 )
 
 var BAD_DST *regexp.Regexp = regexp.MustCompile(`^[\.]+\/`)

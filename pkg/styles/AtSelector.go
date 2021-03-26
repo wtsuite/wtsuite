@@ -1,8 +1,8 @@
 package styles
 
 import (
-	tokens "github.com/computeportal/wtsuite/pkg/tokens/html"
-	"github.com/computeportal/wtsuite/pkg/tree"
+	tokens "github.com/wtsuite/wtsuite/pkg/tokens/html"
+	"github.com/wtsuite/wtsuite/pkg/tree"
 )
 
 // at rules can be endlessly deeply nested

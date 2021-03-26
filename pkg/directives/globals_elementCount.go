@@ -1,9 +1,9 @@
 package directives
 
 import (
-	"github.com/computeportal/wtsuite/pkg/functions"
-	"github.com/computeportal/wtsuite/pkg/tokens/context"
-	tokens "github.com/computeportal/wtsuite/pkg/tokens/html"
+	"github.com/wtsuite/wtsuite/pkg/functions"
+	"github.com/wtsuite/wtsuite/pkg/tokens/context"
+	tokens "github.com/wtsuite/wtsuite/pkg/tokens/html"
 )
 
 // actually not globals, as they are only available inside the template scope

@@ -6,12 +6,12 @@ import (
   "io/ioutil"
   "os"
 
-	"github.com/computeportal/wtsuite/pkg/files"
-	"github.com/computeportal/wtsuite/pkg/git"
-	"github.com/computeportal/wtsuite/pkg/parsers"
-	"github.com/computeportal/wtsuite/pkg/tree/shaders"
-	"github.com/computeportal/wtsuite/pkg/tokens/glsl"
-	"github.com/computeportal/wtsuite/pkg/tokens/patterns"
+	"github.com/wtsuite/wtsuite/pkg/files"
+	"github.com/wtsuite/wtsuite/pkg/git"
+	"github.com/wtsuite/wtsuite/pkg/parsers"
+	"github.com/wtsuite/wtsuite/pkg/tree/shaders"
+	"github.com/wtsuite/wtsuite/pkg/tokens/glsl"
+	"github.com/wtsuite/wtsuite/pkg/tokens/patterns"
 )
 
 const (

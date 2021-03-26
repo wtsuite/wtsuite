@@ -6,7 +6,7 @@ import (
   "math"
   "reflect"
 
-  "github.com/computeportal/wtsuite/pkg/tokens/context"
+  "github.com/wtsuite/wtsuite/pkg/tokens/context"
 )
 
 // convert basic golang types into tokens:

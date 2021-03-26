@@ -3,10 +3,10 @@ package js
 import (
 	"strings"
 
-	"github.com/computeportal/wtsuite/pkg/tokens/context"
-	"github.com/computeportal/wtsuite/pkg/tokens/js/prototypes"
-	"github.com/computeportal/wtsuite/pkg/tokens/js/values"
-	"github.com/computeportal/wtsuite/pkg/tokens/patterns"
+	"github.com/wtsuite/wtsuite/pkg/tokens/context"
+	"github.com/wtsuite/wtsuite/pkg/tokens/js/prototypes"
+	"github.com/wtsuite/wtsuite/pkg/tokens/js/values"
+	"github.com/wtsuite/wtsuite/pkg/tokens/patterns"
 )
 
 // only support single inheritance (easier to maintain code, and similar to java)
