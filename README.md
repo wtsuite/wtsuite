@@ -1,10 +1,10 @@
 # Introduction
 *wtsuite* is a collection of transpilers for html5
 
-Documentation can be found [here](https://www.wtsuite.com)
+More information can be found [here](https://www.wtsuite.com)
 
 # Installing binaries
-[download](https://www.wtsuite.com/download)
+Binaries can be downloaded [here](https://www.wtsuite.com/download)
 
 # Installing from source
 
@@ -13,7 +13,7 @@ Instructions for linux
 Running `make` builds everything.
 Running `make install` builds and installs into `/usr/local/bin`.
 
-## Build dependencies
+## Dependencies
 * shell
 * make
 * libfreetype-dev (v2)
