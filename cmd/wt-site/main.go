@@ -40,6 +40,7 @@ type CmdArgs struct {
   compactOutput  bool
   forceRebuild   bool
   autoDownload   bool
+  clean          bool
 
   profFile       string
   verbosity      int
@@ -63,6 +64,7 @@ func parseArgs() CmdArgs {
     compactOutput: false,
     forceRebuild:  false,
     autoDownload:  false,
+    clean:         false,
     profFile:      "",
     verbosity:     0,
   }
@@ -79,6 +81,7 @@ func parseArgs() CmdArgs {
       parsers.NewCLIUniqueFile("o", "output"              , "-o, --output <output-dir>                  Defaults to ./www", false, &(cmdArgs.outputDir)),
       parsers.NewCLIUniqueFlag("f", "force",        "-f, --force      Force a complete build", &(cmdArgs.forceRebuild)),
       parsers.NewCLIUniqueFlag("", "auto-download", "--auto-download  Automatically download missing packages. Doesnt update!", &(cmdArgs.autoDownload)),
+      parsers.NewCLIUniqueFlag("", "clean", "--clean  Delete files in dst directory that are not a result of this build", &(cmdArgs.clean)),
       parsers.NewCLIUniqueFlag("l", "latest"           , "-l, --latest                  Ignore max semver, use latest tagged versions of dependencies", &(files.LATEST)),
       parsers.NewCLICountFlag("v" , ""                 , "-v[v[v..]]                    Verbosity", &(cmdArgs.verbosity)),
       parsers.NewCLIUniqueKeyValue("D"                 , "-D<name> <value>              Define a global variable with a string value", cmdArgs.globals),
@@ -415,8 +418,10 @@ func buildSite(cmdArgs CmdArgs, cfg *SiteConfig) error {
 		return err
 	}
 
-  if err := cfg.CleanOutput(); err != nil {
-    return err
+  if cmdArgs.clean {
+    if err := cfg.CleanOutput(); err != nil {
+      return err
+    }
   }
 
 	return nil

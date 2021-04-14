@@ -81,6 +81,8 @@ func (p *Window) GetInstanceMember(key string, includePrivate bool, ctx context.
     return NewStorage(ctx), nil
   case "location":
     return NewLocation(ctx), nil
+  case "history":
+    return NewHistory(ctx), nil
   case "navigator":
     return NewNavigator(ctx), nil
   case "open":

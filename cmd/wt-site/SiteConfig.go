@@ -307,7 +307,7 @@ func uniqueURL(base string, ext string, urlExists func(string) bool) string {
   return base + strconv.Itoa(i) + ext
 }
 
-func uniqueStyleURL(src string, pages []PageConfig, files_ []FileConfig) string {
+func uniqueStyleURL(src string, pages []PageConfig, files_ []FileConfig, otherStyles []StyleConfig) string {
   urlExists := func(url string) bool {
     for _, p := range pages {
       if p.url == url {
@@ -321,10 +321,16 @@ func uniqueStyleURL(src string, pages []PageConfig, files_ []FileConfig) string 
       }
     }
 
+    for _, s := range otherStyles {
+      if s.url == url {
+        return true
+      }
+    }
+
     return false
   }
 
-  return uniqueURL("style" + raw.ShortHash(src), ".css", urlExists)
+  return uniqueURL("style", ".css", urlExists)
 }
 
 func uniqueScriptBundleURL(pages []PageConfig, files_ []FileConfig, styles []StyleConfig) string {
@@ -418,7 +424,7 @@ func readStyles(configFile string, outputDir string, styles *tokens.StringDict, 
       }
     }
 
-    url := uniqueStyleURL(src, pages, files_)
+    url := uniqueStyleURL(src, pages, files_, res)
     dst := filepath.Join(outputDir, url)
 
     res = append(res, StyleConfig{src: src, dst: dst, url: url, pages: stylePages, sheet: nil})

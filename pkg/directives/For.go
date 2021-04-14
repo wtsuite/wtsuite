@@ -62,13 +62,13 @@ func For(scope Scope, node Node, tag *tokens.Tag) error {
     loopScope := NewBranchScope(subScope)
 
 		if inameToken != nil {
-			iVar := functions.Var{tokens.NewValueInt(i, ctx), true, true, false, false, ctx}
+			iVar := functions.Var{tokens.NewValueInt(i, ctx), true, false, false, ctx}
       if err := loopScope.SetVar(inameToken.Value(), iVar); err != nil {
         return err
       }
 		}
 		if vnameToken != nil {
-			vVar := functions.Var{v, true, true, false, false, ctx}
+			vVar := functions.Var{v, true, false, false, ctx}
       if err := loopScope.SetVar(vnameToken.Value(), vVar); err != nil {
         return err
       }

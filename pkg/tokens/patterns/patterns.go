@@ -65,9 +65,8 @@ const (
   HTML_STYLE_STOP = `</[\s]*style[\s]*>`
 )
 
-// internal names
 const (
-	//INTERNAL_STYLE_TREE = "__styleTree__"
+  TEMPLATE_VAR_KEYWORD = "const"
 )
 
 var (
@@ -132,7 +131,7 @@ var (
 	JS_SYMBOLS_REGEXP          = regexp.MustCompile(`([>][>][>][=])|([=!][=][=])|([*][*][=])|([<][<][=])|([>][>][=])|([>][>][>])|([<>=!:+\-*/%&|^][=])|([*][*])|([&][&])|([<][<])|([>=][>])|([|][|])|([+][+])|([:][:])|([\-][\-])|([!<>=:,;{}()[\]+*/\-?%\.&|^~])`)
 	MATH_SYMBOLS_REGEXP        = regexp.MustCompile(`([>][>])|([<][<])|([/][/])|([-=][>])|([!<>=~]?[=])|([{}()[\]+\-<>*/\.^_=,])`)
   GLSL_SYMBOLS_REGEXP        = regexp.MustCompile(`([+][+])|([-][-])|([&][&])|([|][|])|([<>!=*+\-][=])|([#:!<>;{}()[\]/\-\.+*=,])`)
-  TEMPLATE_SYMBOLS_REGEXP          = regexp.MustCompile(`([=][=][=])|([|*~<>=!:^][=])|([&][&])|([|][|])|([!][!])|([?][?])|([!<>=:,;{}()[\]+*/\-?$@\.#])`)
+  TEMPLATE_SYMBOLS_REGEXP          = regexp.MustCompile(`([=][=][=])|([|*~<>$=!:^][=])|([&][&])|([|][|])|([!][!])|([?][?])|([=][>])|([!~<>=:,;{}()[\]+*/\-?$@\.#\|])`)
   //CSS_SYMBOLS_REGEXP        = regexp.MustCompile(`([:][:])|([^$][=])|([:+>~()[\]*,=])`)
   CSS_SYMBOLS_REGEXP        = regexp.MustCompile(`([:][:])|([*|$~^][=])|([:+>~()[\]*,=])`)
 

@@ -74,6 +74,7 @@ type ParserSettings struct {
 	tmpGroupArrows            bool
 	tmpGroupDColons           bool
 	tmpGroupAngled            bool
+  expandTmpCommas           bool
 	recursivelyNestOperators  bool
   tokenizeWhitespace        bool
 }

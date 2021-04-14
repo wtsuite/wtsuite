@@ -1,6 +1,9 @@
 package functions
 
 import (
+  "fmt"
+  "reflect"
+
 	"github.com/wtsuite/wtsuite/pkg/tokens/context"
 	tokens "github.com/wtsuite/wtsuite/pkg/tokens/html"
 )
@@ -98,7 +101,9 @@ func Add(scope tokens.Scope, args_ *tokens.Parens, ctx context.Context) (tokens.
 			return addIntFloat(a, b, ctx)
 		default:
 			errCtx := b.Context()
-			return nil, errCtx.NewError("Error: expected int or float")
+      err := errCtx.NewError("Error: expected int or float")
+      panic(err)
+			return nil, err
 		}
 	case *tokens.Float:
 		switch b := args[1].(type) {
@@ -108,7 +113,9 @@ func Add(scope tokens.Scope, args_ *tokens.Parens, ctx context.Context) (tokens.
 			return addFloats(a, b, ctx)
 		default:
 			errCtx := b.Context()
-			return nil, errCtx.NewError("Error: expected int or float")
+      err := errCtx.NewError("Error: expected int or float")
+      panic(err)
+			return nil, err
 		}
 	case *tokens.String:
 		switch b := args[1].(type) {
@@ -116,7 +123,8 @@ func Add(scope tokens.Scope, args_ *tokens.Parens, ctx context.Context) (tokens.
 			return joinStrings(a, b, ctx)
 		default:
 			errCtx := ctx
-			return nil, errCtx.NewError("Error: expected two strings")
+      err := errCtx.NewError("Error: expected two strings")
+			return nil, err
 		}
 	case *tokens.List:
 		switch b := args[1].(type) {
@@ -144,6 +152,8 @@ func Add(scope tokens.Scope, args_ *tokens.Parens, ctx context.Context) (tokens.
 		}
 	default:
 		errCtx := a.Context()
-		return nil, errCtx.NewError("Error: expected int or float")
+    err := errCtx.NewError(fmt.Sprintf("Error: expected int or float, or two strings (got %s and %s)", reflect.TypeOf(args[0]).String(), reflect.TypeOf(args[1]).String()))
+    panic(err)
+		return nil, err
 	}
 }

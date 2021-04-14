@@ -27,11 +27,25 @@ func (p *URL) Check(other_ values.Interface, ctx context.Context) error {
 }
 
 func (p *URL) GetInstanceMember(key string, includePrivate bool, ctx context.Context) (values.Value, error) {
+  s := NewString(ctx)
   switch key {
+  case "hash", "host", "hostname", "href", "origin", "password", "pathname", "port", "protocol", "search", "username":
+    return s, nil
   case "searchParams":
     return NewURLSearchParams(ctx), nil
   default:
     return nil, nil
+  }
+}
+
+func (p *URL) SetInstanceMember(key string, includePrivate bool, arg values.Value, ctx context.Context) error {
+  s := NewString(ctx)
+
+  switch key {
+  case "hash", "host", "hostname", "href", "password", "pathname", "port", "protocol", "search", "username":
+    return s.Check(arg, ctx)
+  default:
+    return ctx.NewError("Error: URL." + key + " not setable")
   }
 }
 

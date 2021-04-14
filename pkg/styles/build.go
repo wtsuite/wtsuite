@@ -4,6 +4,7 @@ import (
   "strings"
 
 	"github.com/wtsuite/wtsuite/pkg/directives"
+	"github.com/wtsuite/wtsuite/pkg/functions"
 	"github.com/wtsuite/wtsuite/pkg/tokens/context"
 	"github.com/wtsuite/wtsuite/pkg/tokens/patterns"
 	tokens "github.com/wtsuite/wtsuite/pkg/tokens/html"
@@ -75,12 +76,26 @@ func Build(path string, ctx context.Context) (Sheet, error) {
     return nil, errCtx.NewError("Error: style var \"main\" not exported from \"" + path + "\"")
   }
 
-  // XXX: can functions with all defaults also be used?
+  var d *tokens.StringDict 
 
-  d, err := tokens.AssertStringDict(v.Value)
-  if err != nil {
-    return nil, err
-  }
+  switch val := v.Value.(type) {
+  case *tokens.StringDict:
+    d = val
+  case *functions.AnonFun:
+    args := tokens.NewParens([]tokens.Token{}, nil, val.Context())
+    res, err := val.EvalFun(scope, args, val.Context())
+    if err != nil {
+      return nil, err
+    }
+
+    d, err = tokens.AssertStringDict(res)
+    if err != nil {
+      return nil, err
+    }
+  default:
+    errCtx := v.Value.Context()
+    return nil, errCtx.NewError("Error: expected string dict or function with all defaults")
+  } 
 
   return BuildDict(d)
 }

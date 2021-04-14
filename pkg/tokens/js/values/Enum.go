@@ -10,7 +10,7 @@ type Enum struct {
 }
 
 func NewEnum(proto Prototype, ctx context.Context) *Enum {
-	return &Enum{proto, ValueData{ctx}}
+	return &Enum{proto, newValueData(ctx)}
 }
 
 func (v *Enum) TypeName() string {

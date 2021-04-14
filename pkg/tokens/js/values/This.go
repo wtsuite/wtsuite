@@ -15,7 +15,7 @@ func NewThis(this Value, ctx context.Context) *This {
   return &This{
     this,
     make(map[string]Value),
-    ValueData{ctx},
+    newValueData(ctx),
   }
 }
 

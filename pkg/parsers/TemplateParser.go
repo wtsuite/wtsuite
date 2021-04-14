@@ -94,20 +94,23 @@ var uiParserSettings = ParserSettings{
 		operatorSettings{14, "*", BIN | L2R},
 		operatorSettings{13, "-", BIN | L2R},
 		operatorSettings{13, "+", BIN | L2R},
-		operatorSettings{11, "<", BIN | L2R},
-		operatorSettings{11, "<=", BIN | L2R},
-		operatorSettings{11, ">", BIN | L2R},
-		operatorSettings{11, ">=", BIN | L2R},
-		operatorSettings{10, "!=", BIN | L2R},
-		operatorSettings{10, "==", BIN | L2R},
-		operatorSettings{10, "===", BIN | L2R},
-		operatorSettings{8, "&&", BIN | L2R},
-		operatorSettings{7, "||", BIN | L2R},
-		operatorSettings{6, "!!", BIN | L2R},
-    operatorSettings{5, "??", BIN | L2R},
-		operatorSettings{4, ":=", BIN}, // so we can use new in ternary operators
-		operatorSettings{3, "?", BIN},  // so we can use ternary operator inside dicts
-		operatorSettings{2, ":", SING | PRE | POST | BIN},
+		operatorSettings{12, "<", BIN | L2R},
+		operatorSettings{12, "<=", BIN | L2R},
+		operatorSettings{12, ">", BIN | L2R},
+		operatorSettings{12, ">=", BIN | L2R},
+		operatorSettings{11, "!=", BIN | L2R},
+		operatorSettings{11, "==", BIN | L2R},
+		operatorSettings{11, "===", BIN | L2R},
+		operatorSettings{10, "&&", BIN | L2R},
+		operatorSettings{9, "||", BIN | L2R},
+		operatorSettings{8, "!!", BIN | L2R},
+    operatorSettings{7, "??", BIN | L2R},
+		//operatorSettings{4, ":=", BIN}, // so we can use new in ternary operators
+		operatorSettings{6, "?", BIN},  // so we can use ternary operator inside dicts
+		operatorSettings{5, ":", SING | PRE | POST | BIN},
+    operatorSettings{4, ",", BIN | L2R},
+    operatorSettings{3, "=>", BIN | L2R},
+    operatorSettings{2, "|", BIN | L2R}, // pipe operator
 		operatorSettings{1, "=", BIN},
   }),
 	tmpGroupWords:             true,
@@ -115,6 +118,7 @@ var uiParserSettings = ParserSettings{
 	tmpGroupArrows:            false,
 	tmpGroupDColons:           false,
 	tmpGroupAngled:            false,
+  expandTmpCommas:           true,
 	recursivelyNestOperators:  true,
   tokenizeWhitespace:        true,
 }
@@ -564,44 +568,68 @@ func (p *TemplateParser) buildFunctionDirective(ts []raw.Token) (*html.Tag, []ra
 	varAttr := html.NewEmptyRawDict(ctx)
 
 	nameHtmlToken := html.NewValueString(nameToken.Value(), nameToken.Context())
-	varAttr.Set(nameHtmlToken, fnValue)
+  varAttr.Set(html.NewValueString("names", nameToken.Context()), html.NewValuesList([]html.Token{nameHtmlToken}, nameToken.Context()))
+	varAttr.Set(html.NewValueString("value", fnValue.Context()), fnValue)
 
-	return html.NewDirectiveTag("var", varAttr, []*html.Tag{}, ctx), rem, nil
+	return html.NewDirectiveTag(patterns.TEMPLATE_VAR_KEYWORD, varAttr, []*html.Tag{}, ctx), rem, nil
 }
 
 func (p *TemplateParser) buildVarDirective(ts []raw.Token) (*html.Tag, []raw.Token, error) {
-  ctx := ts[0].Context()
+  ctx := raw.MergeContexts(ts...)
 
   if len(ts) < 4 {
-    errCtx := raw.MergeContexts(ts...)
+    errCtx := ctx
     return nil, nil, errCtx.NewError("Error: expected more tokens for var directive")
   }
 
-  nameToken, err := raw.AssertWord(ts[1])
-  if err != nil {
-    return nil, nil, err
-  }
-
-  ts, _ = p.eatWhitespace(ts[2:])
-
-  if !raw.IsSymbol(ts[0], "=") {
-    errCtx := ts[0].Context()
+  before, after := raw.SplitByFirstSymbol(ts[1:], "=")
+  eqPos := len(before)
+  eqCtx := ts[eqPos].Context()
+  if !raw.IsSymbol(ts[eqPos], "=") {
+    errCtx := eqCtx
     return nil, nil, errCtx.NewError("Error: expected =")
   }
 
-  ts, _ = p.eatWhitespace(ts[1:])
+  before, _ = p.eatWhitespace(before[0:len(before)-1]) // also remove the symbol
+  after, _ = p.eatWhitespace(after)
+  if len(before) == 0 {
+    errCtx := eqCtx
+    return nil, nil, errCtx.NewError("Error: expected tokens before")
+  } else if len(after) == 0 {
+    errCtx := eqCtx
+    return nil, nil, errCtx.NewError("Error: expected tokens after")
+  }
 
-  rhsExpr, rem, err := p.buildEndOfLineExpression(ts)
+  names := make([]html.Token, 0)
+  beforeFields := raw.SplitBySymbol(before, ",")
+  for _, beforeField := range beforeFields {
+    if len(beforeField) == 0 {
+      errCtx := raw.MergeContexts(before...)
+      return nil, nil, errCtx.NewError("Error: empty name")
+    } else if len(beforeField) != 1 {
+      errCtx := raw.MergeContexts(beforeField...)
+      return nil, nil, errCtx.NewError("Error: unexpected number of tokens")
+    }
+
+    nameToken, err := raw.AssertWord(beforeField[0])
+    if err != nil {
+      return nil, nil, err
+    }
+
+    names = append(names, html.NewValueString(nameToken.Value(), nameToken.Context()))
+  }
+
+  rhsExpr, rem, err := p.buildEndOfLineExpression(after)
   if err != nil {
     return nil, nil, err
   }
 
-	attr := html.NewEmptyRawDict(nameToken.Context())
+	attr := html.NewEmptyRawDict(ctx)
 
-	nameHtmlToken := html.NewValueString(nameToken.Value(), nameToken.Context())
-	attr.Set(nameHtmlToken, rhsExpr)
+  attr.Set(html.NewValueString("names", ctx), html.NewValuesList(names, ctx))
+	attr.Set(html.NewValueString("value", rhsExpr.Context()), rhsExpr)
 
-	return html.NewDirectiveTag("var", attr, []*html.Tag{}, ctx), rem, nil
+	return html.NewDirectiveTag(patterns.TEMPLATE_VAR_KEYWORD, attr, []*html.Tag{}, ctx), rem, nil
 }
 
 func (p *TemplateParser) buildPermissiveDirective(ts []raw.Token) (*html.Tag, []raw.Token, error) {
@@ -987,7 +1015,7 @@ func (p *TemplateParser) buildExportedDirective(indent int, ts []raw.Token) (*ht
   exportCtx := ts[0].Context()
 
   switch {
-  case raw.IsWord(ts[1], "var"):
+  case raw.IsWord(ts[1], patterns.TEMPLATE_VAR_KEYWORD):
     tag, rem, err := p.buildVarDirective(ts[1:])
     if err != nil {
       return nil, nil, err
@@ -1157,7 +1185,7 @@ func (p *TemplateParser) buildTag(indent int, ts []raw.Token) (*html.Tag, []raw.
           return p.buildClassDirective(ts)
         case !followedByParens && key == "template":
           return p.buildTemplateDirective(ts)
-        case !followedByParens && key == "var":
+        case !followedByParens && key == patterns.TEMPLATE_VAR_KEYWORD:
           return p.buildVarDirective(ts)
         case key == "function":
           return p.buildFunctionDirective(ts)

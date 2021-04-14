@@ -1,6 +1,9 @@
 package functions
 
 import (
+  "fmt"
+  "reflect"
+
 	"github.com/wtsuite/wtsuite/pkg/tokens/context"
 	tokens "github.com/wtsuite/wtsuite/pkg/tokens/html"
 )
@@ -22,7 +25,7 @@ func AssertFun(t tokens.Token) (Fun, error) {
 		return f, nil
 	} else {
 		errCtx := t.Context()
-		return nil, errCtx.NewError("Error: expected function")
+		return nil, errCtx.NewError("Error: expected function, got " + fmt.Sprintf("%s", reflect.TypeOf(t).String()))
 	}
 }
 
@@ -34,7 +37,11 @@ func NewFun(scope tokens.Scope, args_ *tokens.Parens, ctx context.Context) (toke
   }
 
 	if len(args) != 2 {
-		return nil, ctx.NewError("Error: expected 2 arguments")
+    for _, arg := range args {
+      hereCtx := arg.Context()
+      fmt.Println(hereCtx.NewError("here").Error())
+    }
+		return nil, ctx.NewError(fmt.Sprintf("Error: expected 2 arguments, got %d", len(args)))
 	}
 
 	argsWithDefaults, err := tokens.AssertParens(args[0])
@@ -62,7 +69,7 @@ func EvalFun(scope tokens.Scope, args_ *tokens.Parens, ctx context.Context) (tok
   }
 
   if len(args) != 2 {
-    return nil, ctx.NewError("Error: expected 2 arguments")
+    return nil, ctx.NewError(fmt.Sprintf("Error: expected 2 arguments, got %d", len(args)))
   }
 
   fn, err := AssertFun(args[0])
@@ -76,14 +83,7 @@ func EvalFun(scope tokens.Scope, args_ *tokens.Parens, ctx context.Context) (tok
     return nil, err
   }
 
-  argList := make([]tokens.Token, list.Len())
-  if err := list.Loop(func(i int, v tokens.Token, last bool) error {
-    argList[i] = v
-    return nil
-  }); err != nil {
-    panic(err)
-  }
+  parens := tokens.NewParens(list.GetTokens(), nil, list.Context())
 
-  parens := tokens.NewParens(argList, nil, ctx)
   return fn.EvalFun(scope, parens, ctx)
 }

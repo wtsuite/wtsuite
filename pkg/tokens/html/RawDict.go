@@ -62,7 +62,7 @@ func (t *RawDict) Dump(indent string) string {
 
 	for _, item := range t.items {
 		b.WriteString(item.key.Dump(indent + "  "))
-		b.WriteString(item.value.Dump(indent + "   :"))
+		b.WriteString(item.value.Dump(indent + "  : "))
 	}
 
 	return b.String()
@@ -105,6 +105,11 @@ func (t *RawDict) toKeyDict(scope Scope, dtype DictType, scanFn func(Token, Toke
 			if err != nil {
 				return nil, err
 			}
+
+      if IsParens(value) {
+        errCtx := value.Context()
+        return nil, errCtx.NewError("Error: unexpected multiple return value")
+      }
 		}
 
 		if scanFn != nil {

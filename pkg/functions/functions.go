@@ -29,6 +29,8 @@ var preEval = map[string]BuiltinFunction{
 	"eq":                EQ, // difference wrt. issame?
 	"error":             Error,
   "ext":               Ext,
+	"filter":            Filter,
+  "find":              Find,
 	"float":             Float,
 	"floor":             Floor,
 	"ge":                GE,
@@ -57,6 +59,7 @@ var preEval = map[string]BuiltinFunction{
 	"lower":             Lower,
   "ls":                LS,
 	"lt":                LT,
+	"map":               Map,
   "matches":           Matches,
 	"max":               Max,
 	"merge":             Merge,
@@ -83,7 +86,9 @@ var preEval = map[string]BuiltinFunction{
 	"sin":               Sin,
 	"slice":             Slice,
   "slug":              Slug,
+	"sort":              Sort,
 	"split":             Split,
+  "spread":            Spread,
 	"sqrt":              Sqrt,
 	"str":               Str,
 	"sub":               Sub,
@@ -95,17 +100,14 @@ var preEval = map[string]BuiltinFunction{
 	"year":              Year,
 }
 
+// spread operator doesn't work on these
 var postEval = map[string]BuiltinFunction{
 	"and":      And,
 	"eval":     EvalFun,
-  "find":     Find,
-	"filter":   Filter,
 	"function": NewFun,
 	"ifelse":   IfElse,
-	"isvar":    IsVar,
-	"map":      Map,
+	"exists":   Exists,
 	"or":       Or,
-	"sort":     Sort,
 }
 
 func HasFun(key string) bool {
@@ -136,7 +138,8 @@ func CompleteArgs(args *tokens.Parens, interf *tokens.Parens) ([]tokens.Token, e
     for i, alt := range args.Alts() {
       if alt != nil {
         errCtx := args.Values()[i].Context()
-        return nil, errCtx.NewError("Error: kwargs not supported")
+        err := errCtx.NewError("Error: kwargs not supported")
+        return nil, err
       }
     }
 
@@ -151,7 +154,8 @@ func CompleteArgs(args *tokens.Parens, interf *tokens.Parens) ([]tokens.Token, e
     for i, alt := range interf.Alts() {
       if alt == nil {
         errCtx := interf.Values()[i].Context()
-        return nil, errCtx.NewError("Error: doesn't have a default")
+        err := errCtx.NewError("Error: doesn't have a default")
+        return nil, err
       }
     }
 
@@ -235,7 +239,8 @@ func CompleteArgs(args *tokens.Parens, interf *tokens.Parens) ([]tokens.Token, e
 
     if interfAlt == nil {
       errCtx := args.Context()
-      return nil, errCtx.NewError("Error: arg " + interfWord.Value() + " not specified (doesn't have a default)")
+      err := errCtx.NewError("Error: arg " + interfWord.Value() + " not specified (doesn't have a default)")
+      return nil, err
     } else {
       res[i] = interfAlt
     }

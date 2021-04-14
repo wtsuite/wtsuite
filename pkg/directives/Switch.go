@@ -51,7 +51,7 @@ func buildCase(scope Scope, node Node, swValue tokens.Token,
 	if cond {
 		for _, child := range tag.Children() {
 			if err := BuildTag(subScope, node, child); err != nil {
-				return false, nil
+				return false, err
 			}
 		}
 	}

@@ -136,7 +136,7 @@ func (t *TypeExpression) ResolveExpressionNames(scope Scope) error {
     }
 	}
 
-  if t.Name() != "function" && t.Name() != "class" {
+  if t.Name() != "function" && t.Name() != "class" && t.Name() != values.TUPLE {
     if err := t.VarExpression.ResolveExpressionNames(scope); err != nil {
       return err
     }
@@ -348,7 +348,7 @@ func (t *TypeExpression) generateTuple() (values.Value, error) {
     content[i] = val
   }
 
-  return prototypes.NewTuple(content, t.Context()), nil
+  return values.NewTuple(content, t.Context()), nil
 }
 
 func (t *TypeExpression) generateObject() (values.Value, error) {
@@ -408,7 +408,7 @@ func (t *TypeExpression) WriteUniversalRuntimeType() string {
     b.WriteString("]")
 
     return b.String()
-  case "Tuple":
+  case values.TUPLE:
     if t.parameters == nil {
       panic("not a universal tuple")
     }
@@ -528,7 +528,7 @@ func (t *TypeExpression) EvalExpression() (values.Value, error) {
     return prototypes.NewIDBRequest(content, ctx), nil
   case "Object":
     return t.generateObject()
-  case "Tuple":
+  case values.TUPLE:
     return t.generateTuple()
   default:
     if t.parameters != nil {
@@ -538,11 +538,30 @@ func (t *TypeExpression) EvalExpression() (values.Value, error) {
 
     interf := t.GetInterface()
     if interf == nil {
-      return nil, ctx.NewError("Error: expected an interface")
+      if ta := t.GetTypeAlias(); ta != nil {
+        return values.NewContextValue(ta, ctx), nil
+      }
+      
+      // it might be a regular value (i.e. from a type interface)
+      return nil, ctx.NewError("Error: expected an interface or type alias")
     }
 
     return values.NewInstance(interf, ctx), nil
 	}
+}
+
+func (t *TypeExpression) GetTypeAlias() values.Value {
+  obj_ := t.GetVariable().GetObject()
+  if obj_ == nil {
+    return nil
+  }
+
+  obj, ok := obj_.(*values.TypeAlias)
+  if ok {
+    return obj.Content()
+  } else {
+    return nil
+  }
 }
 
 func (t *TypeExpression) Walk(fn WalkFunc) error {

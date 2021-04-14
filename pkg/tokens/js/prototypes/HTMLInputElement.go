@@ -46,7 +46,7 @@ func (p *HTMLInputElement) GetInstanceMember(key string, includePrivate bool, ct
     return values.NewFunction([]values.Value{nil}, ctx), nil
   case "setCustomValidity":
     return values.NewFunction([]values.Value{s, nil}, ctx), nil
-  case "value":
+  case "validationMessage", "value":
     return s, nil
   default:
     return nil, nil

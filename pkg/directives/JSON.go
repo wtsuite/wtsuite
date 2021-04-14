@@ -5,6 +5,7 @@ import (
   "io/ioutil"
 
 	"github.com/wtsuite/wtsuite/pkg/tokens/context"
+	"github.com/wtsuite/wtsuite/pkg/tokens/patterns"
 	tokens "github.com/wtsuite/wtsuite/pkg/tokens/html"
 )
 
@@ -46,7 +47,7 @@ func BuildJSONFile(input string, outputPath string) error {
 }
 
 func WriteJSONToFile(token tokens.Token, path string) error {
-  content, err := tokens.WriteJSON(token)
+  content, err := tokens.WriteJSON(token, "", patterns.TAB, patterns.NL)
   if err != nil {
     return err
   }

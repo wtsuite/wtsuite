@@ -625,6 +625,8 @@ func CommitPush(srcDir string, dstURL string, sshKey string) error {
 func FetchPublicOrPrivate(url string, svr *files.SemVerRange) (string, error) {
   dstBase := files.PkgInstallDir(url)
 
+  fmt.Println("fetching " + url)
+
   // assume public (i.e. empty sshKey)
   if err := FetchRangedTag(url, dstBase, svr, ""); err != nil {
     if privateErrRe.MatchString(strings.ToLower(err.Error())) {

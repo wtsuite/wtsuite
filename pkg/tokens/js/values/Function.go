@@ -27,11 +27,11 @@ func NewMethodLikeFunction(argsAndRet []Value, ctx context.Context) *Function {
 }
 
 func NewOverloadedFunction(argsAndRet [][]Value, ctx context.Context) *Function {
-  return &Function{false, argsAndRet, nil, ValueData{ctx}}
+  return &Function{false, argsAndRet, nil, newValueData(ctx)}
 }
 
 func NewOverloadedMethodLikeFunction(argsAndRet [][]Value, ctx context.Context) *Function {
-  return &Function{true, argsAndRet, nil, ValueData{ctx}}
+  return &Function{true, argsAndRet, nil, newValueData(ctx)}
 }
 
 // args dont contain return value in case fn is defined
@@ -40,7 +40,7 @@ func NewCustomFunction(args []Value, fn func(args []Value, preferMethod bool, ct
 }
 
 func NewOverloadedCustomFunction(args [][]Value, fn func(args []Value, preferMethod bool, ctx_ context.Context) (Value, error), ctx context.Context) *Function {
-  return &Function{false, args, fn, ValueData{ctx}}
+  return &Function{false, args, fn, newValueData(ctx)}
 }
 
 func (v *Function) TypeName() string {

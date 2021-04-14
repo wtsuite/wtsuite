@@ -120,39 +120,6 @@ func IsNull(scope tokens.Scope, args_ *tokens.Parens, ctx context.Context) (toke
 	return tokens.NewValueBool(tokens.IsNull(args[0]), ctx), nil
 }
 
-// everything except null and undefined
-func IsVar(scope tokens.Scope, args_ *tokens.Parens, ctx context.Context) (tokens.Token, error) {
-  args, err := CompleteArgs(args_, nil)
-  if err != nil {
-    return nil, err
-  }
-
-	if len(args) != 1 {
-		return nil, ctx.NewError("Error: expected 1 argument")
-	}
-
-	arg1, err := args[0].Eval(scope)
-	if err != nil {
-		return nil, err
-	}
-
-	name, err := tokens.AssertString(arg1)
-	if err != nil {
-		return nil, err
-	}
-
-	fn := tokens.NewFunction("get", []tokens.Token{name, tokens.NewNull(ctx)}, ctx)
-
-	res, err := fn.Eval(scope)
-	if err != nil {
-		panic(err)
-	}
-
-	resIsVar := !tokens.IsNull(res)
-
-	return tokens.NewValueBool(resIsVar, ctx), nil
-}
-
 func IsString(scope tokens.Scope, args_ *tokens.Parens, ctx context.Context) (tokens.Token, error) {
   args, err := CompleteArgs(args_, nil)
   if err != nil {

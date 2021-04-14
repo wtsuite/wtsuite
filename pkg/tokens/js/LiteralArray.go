@@ -71,9 +71,11 @@ func (t *LiteralArray) EvalExpression() (values.Value, error) {
 		items[i] = item
 	}
 
-  common := values.CommonValue(items, t.Context())
+  //common := values.CommonValue(items, t.Context())
 
-	return prototypes.NewArray(common, t.Context()), nil
+  pr := prototypes.NewArrayPrototype(values.CommonValue(items, t.Context()))
+
+	return values.NewLiteralTuple(items, pr, t.Context()), nil
 }
 
 func (t *LiteralArray) ResolveExpressionActivity(usage Usage) error {

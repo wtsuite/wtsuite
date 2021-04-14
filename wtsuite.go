@@ -10,7 +10,6 @@ import (
   "github.com/wtsuite/wtsuite/pkg/tokens/patterns"
   tokens "github.com/wtsuite/wtsuite/pkg/tokens/html"
   "github.com/wtsuite/wtsuite/pkg/tree"
-  "github.com/wtsuite/wtsuite/pkg/styles"
 )
 
 type Transpiler struct {

@@ -128,6 +128,18 @@ func (t *List) Dump(indent string) string {
 	var b strings.Builder
 
   b.WriteString(indent)
+  b.WriteString("List\n")
+	for _, value := range t.values {
+    b.WriteString(value.Dump(indent + "[ "))
+	}
+
+  return b.String()
+}
+
+func (t *List) Echo(indent string) string {
+	var b strings.Builder
+
+  b.WriteString(indent)
 
   b.WriteString("[")
 

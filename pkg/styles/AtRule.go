@@ -2,6 +2,8 @@ package styles
 
 import (
   "strings"
+
+  "github.com/wtsuite/wtsuite/pkg/tokens/context"
 )
 
 type AtRule struct {
@@ -11,6 +13,10 @@ type AtRule struct {
 
 func NewAtRule(sel *AtSelector, rules []Rule) *AtRule {
   return &AtRule{sel, rules}
+}
+
+func (r *AtRule) Context() context.Context {
+  return r.sel.Context()
 }
 
 func (r *AtRule) SetParent(parent *AtSelector) {

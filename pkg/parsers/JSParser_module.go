@@ -284,6 +284,23 @@ func (p *JSParser) buildExportVarStatement(ts []raw.Token,
 	return remaining, nil
 }
 
+func (p *JSParser) buildExportTypeAliasStatement(ts []raw.Token) ([]raw.Token, error) {
+	statement, remaining, err := p.buildTypeAliasStatement(ts[1:])
+	if err != nil {
+		return nil, err
+	}
+
+	variable := statement.GetVariable()
+
+  if err := p.module.AddExportedName(statement.Name(), statement.Name(), variable, statement.Context()); err != nil {
+    return nil, err
+  }
+
+	p.module.AddStatement(statement)
+
+  return remaining, nil
+}
+
 func (p *JSParser) buildExportFunctionStatement(ts []raw.Token) ([]raw.Token, error) {
 	fn, remaining, err := p.buildFunctionStatement(ts[1:])
 	if err != nil {
@@ -425,6 +442,8 @@ func (p *JSParser) buildExportStatement(ts []raw.Token) ([]raw.Token, error) {
 			}
 
 			return p.buildExportVarStatement(ts, varType)
+    case "type":
+      return p.buildExportTypeAliasStatement(ts)
 		case "function":
 			return p.buildExportFunctionStatement(ts)
 		case "async":

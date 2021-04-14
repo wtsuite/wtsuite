@@ -553,3 +553,34 @@ func ExpandParensGroup(t Token) []Token {
 func (t *Group) ExpandOnce() []Token {
   return t.original
 }
+
+// used to detect parasitic assignments inside default arguments
+func ExpandAll(ts []Token) []Token {
+  res := make([]Token, 0)
+  
+  for _, t_ := range ts {
+    switch t := t_.(type) {
+    case *Group:
+      res = append(res, ExpandAll(t.original)...)
+    case *Operator:
+      switch {
+      case strings.HasPrefix(t.name, "bin"):
+        res = append(res, ExpandAll(t.args[0:1])...)
+        res = append(res, NewSymbol(t.name[3:], false, t.Context()))
+        res = append(res, ExpandAll(t.args[1:2])...)
+      case strings.HasPrefix(t.name, "pre"):
+        res = append(res, NewSymbol(t.name[3:], false, t.Context()))
+        res = append(res, ExpandAll(t.args)...)
+      case strings.HasPrefix(t.name, "post"):
+        res = append(res, ExpandAll(t.args)...)
+        res = append(res, NewSymbol(t.name[4:], false, t.Context()))
+      default:
+        panic("unhandled")
+      }
+    default:
+      res = append(res, t_)
+    }
+  }
+
+  return res
+}

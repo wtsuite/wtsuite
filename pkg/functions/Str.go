@@ -1,6 +1,7 @@
 package functions
 
 import (
+  "fmt"
 	"reflect"
 	"strings"
 
@@ -84,8 +85,9 @@ func strInternal(args []tokens.Token, ctx context.Context) (*tokens.String, erro
 		return joinListAsString(t, sepStr, ctx)
 	default:
 		errCtx := t.Context()
-		err := errCtx.NewError("Error: expected primitive, got " + reflect.TypeOf(t).String())
+		err := errCtx.NewError(fmt.Sprintf("Error: expected primitive, got %s (%d args)", reflect.TypeOf(t).String(), len(args)))
 		err.AppendContextString("Info: called here", ctx)
+    panic(err)
 		return nil, err
 	}
 }
@@ -94,6 +96,15 @@ func Str(scope tokens.Scope, args_ *tokens.Parens, ctx context.Context) (tokens.
   args, err := CompleteArgs(args_, nil)
   if err != nil {
     return nil, err
+  }
+
+  if len(args) == 1 && tokens.IsNull(args[0]) {
+    return tokens.NewNull(ctx), nil
+  } else if len(args) == 1 && tokens.IsList(args[0]) {
+    lst := args[0].(*tokens.List)
+    if lst.Len() == 1 && tokens.IsNull(lst.GetTokens()[0]) {
+      return tokens.NewNull(ctx), nil
+    }
   }
 
 	return strInternal(args, ctx)

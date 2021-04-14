@@ -912,7 +912,29 @@ func (p *Parser) tokenize() ([]tokens.Token, error) {
 
 // only expand once
 func (p *Parser) expandTmpGroups(ts []tokens.Token) []tokens.Token {
-	return tokens.ExpandTmpGroups(ts)
+	ts = tokens.ExpandTmpGroups(ts)
+
+  if p.settings.expandTmpCommas {
+    res := make([]tokens.Token, 0)
+    for _, t := range ts {
+      if tokens.IsBinaryOperator(t, "bin,") {
+        op, err := tokens.AssertBinaryOperator(t, "bin,")
+        if err != nil {
+          panic(err)
+        }
+
+        res = append(res, p.expandTmpGroups(op.Args()[0:1])...)
+        res = append(res, tokens.NewSymbol(",", false, op.Context()))
+        res = append(res, p.expandTmpGroups(op.Args()[1:2])...)
+      } else {
+        res = append(res, t)
+      }
+    }
+
+    ts = res
+  }
+
+  return ts
 }
 
 func (p *Parser) expandAngledGroups(ts []tokens.Token) []tokens.Token {

@@ -78,6 +78,7 @@ func (p *JSParser) buildFunctionArgument(ts []raw.Token,
     errCtx := raw.MergeContexts(ts[0:]...)
     return nil, errCtx.NewError("Error: rest not yet supported")
 	default:
+    // XXX: are all the above cases still needed?
 		// TODO: replace all other non-rest cases with this one
 		if len(ts) == 0 {
 			panic("no tokens")

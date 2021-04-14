@@ -302,11 +302,15 @@ func (t *tagData) write(wrapAutoHref bool, indent string, nl, tab string) string
 	if t.selfClosing {
 		return b.String()
 	} else {
-		b.WriteString(nl)
+    if len(t.children) > 0 {
+      b.WriteString(nl)
 
-		b.WriteString(t.writeChildren(indent+tab, nl, tab))
+      b.WriteString(t.writeChildren(indent+tab, nl, tab))
 
-		b.WriteString(t.writeStop(wrapAutoHref, indent))
+      b.WriteString(t.writeStop(wrapAutoHref, indent))
+    } else {
+      b.WriteString(t.writeStop(wrapAutoHref, ""))
+    }
 	}
 
 	return b.String()

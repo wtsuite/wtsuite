@@ -61,7 +61,7 @@ func CompleteArgsAndFillScope(scope LambdaScope, args_ *tokens.Parens, interf *t
   }
 
   fnSet := func(i int, arg tokens.Token) error {
-		v := Var{arg, false, true, false, false, arg.Context()}
+		v := Var{arg, true, false, false, arg.Context()}
 
     argWord, err := tokens.AssertWord(interf.Values()[i])
     if err != nil {

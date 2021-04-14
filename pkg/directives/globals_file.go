@@ -13,7 +13,6 @@ func SetFile(scope Scope, path string, ctx context.Context) {
   if err := scope.SetVar(FILE, functions.Var{
 		tokens.NewValueString(path, ctx),
 		true,
-		true,
 		false,
 		false,
 		ctx,

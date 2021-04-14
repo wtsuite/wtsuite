@@ -28,6 +28,10 @@ type ValueData struct {
 	ctx context.Context
 }
 
+func newValueData(ctx context.Context) ValueData {
+  return ValueData{ctx}
+}
+
 func (v *ValueData) Context() context.Context {
 	return v.ctx
 }

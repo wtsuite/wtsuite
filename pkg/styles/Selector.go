@@ -16,6 +16,7 @@ type Selector interface {
   Extend(extra *tokens.String) ([]Selector, error) // eg. pseudo selector, or child
   Match(tag tree.Tag) []tree.Tag // returns empty list if no match
   Write() string
+  Context() context.Context
 }
 
 type SelectorData struct {
@@ -30,6 +31,12 @@ type SelectorData struct {
   descendant *SelectorData
   sibling *SelectorData
   immediate bool // sibling or descendant
+
+  ctx context.Context
+}
+
+func (s *SelectorData) Context() context.Context {
+  return s.ctx
 }
 
 func (s *SelectorData) Copy() *SelectorData {
@@ -43,6 +50,7 @@ func (s *SelectorData) Copy() *SelectorData {
     s.descendant,
     s.sibling,
     s.immediate,
+    s.ctx,
   }
 }
 
@@ -258,6 +266,8 @@ func parseNameToken(t raw.Token) (string, string, string, error) {
 
 // use a dummy *SelectorData to return all the vlues
 func parseFiltersPseudoAndDescendants(ts []raw.Token) (*SelectorData, error) {
+  ctx := raw.MergeContexts(ts...)
+
   filters := make([]AttrFilter, 0)
   pseudoClasses := make([]PseudoClass, 0)
   pseudoElement := ""
@@ -380,7 +390,7 @@ func parseFiltersPseudoAndDescendants(ts []raw.Token) (*SelectorData, error) {
     }
   }
 
-  return &SelectorData{"", "", "", filters, pseudoClasses, pseudoElement, descendant, sibling, immediate}, nil
+  return &SelectorData{"", "", "", filters, pseudoClasses, pseudoElement, descendant, sibling, immediate, ctx}, nil
 }
 
 func ParseSelector(ts []raw.Token) (*SelectorData, error) {
@@ -390,7 +400,7 @@ func ParseSelector(ts []raw.Token) (*SelectorData, error) {
   }
 
   if len(ts) == 1 {
-    return &SelectorData{elementName, class, id, []AttrFilter{}, []PseudoClass{}, "", nil, nil, false}, nil
+    return &SelectorData{elementName, class, id, []AttrFilter{}, []PseudoClass{}, "", nil, nil, false, ts[0].Context()}, nil
   } else {
     sel, err := parseFiltersPseudoAndDescendants(ts[1:])
     if err != nil {
@@ -533,7 +543,7 @@ func (s *SelectorData) match(tag tree.Tag) bool {
   }
 
   for _, f := range s.filters {
-    if !f.Match(tag.Attributes()) {
+    if !f.Match(tag) {
       return false
     }
   }

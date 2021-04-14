@@ -24,7 +24,7 @@ func NewSuper(cl *Class, ctx context.Context) (Value, error) {
   return &Super{
     cl,
     val,
-    ValueData{ctx},
+    newValueData(ctx),
   }, nil
 }
 

@@ -40,16 +40,6 @@ func (s *SheetData) Len() int {
   return len(s.rules)
 }
 
-/*func (s *SheetData) IsNotLazy() bool {
-  for _, r := range rules {
-    if r.IsLazy() {
-      return false
-    }
-  }
-
-  return true
-}*/
-
 func (s *SheetData) Write(compr bool, nl string, tab string) (string, error) {
   var b strings.Builder
 
@@ -98,7 +88,7 @@ func (s *SheetData) applyWrap(root *tree.Root) error {
   }
 
   for _, r_ := range s.rules {
-    if r, ok := r_.(*WrapRule); ok {
+    if r, ok := r_.(Wrap); ok {
       // operation is done inplace
       if err := r.ApplyWrap(htmlTag); err != nil {
         return err

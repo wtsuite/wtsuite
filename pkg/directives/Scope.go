@@ -4,8 +4,8 @@ import (
   "strings"
 
 	"github.com/wtsuite/wtsuite/pkg/functions"
-	//"github.com/wtsuite/wtsuite/pkg/parsers"
 	"github.com/wtsuite/wtsuite/pkg/tokens/context"
+	"github.com/wtsuite/wtsuite/pkg/tokens/patterns"
 	tokens "github.com/wtsuite/wtsuite/pkg/tokens/html"
 	"github.com/wtsuite/wtsuite/pkg/tree"
 	"github.com/wtsuite/wtsuite/pkg/tree/svg"
@@ -93,23 +93,28 @@ func buildTree(parent Scope, parentNode Node, nt NodeType,
 	tagToken *tokens.Tag, opName string) error {
 	scope := NewSubScope(parent) // the enumNode absorbs intermediate enum declarations
 
-	attr, err := buildAttributes(scope, tagToken, []string{})
-	if err != nil {
-		return err
-	}
+  getAttr := func() (*tokens.StringDict, error) {
+    attr, err := buildAttributes(scope, tagToken, []string{})
+    if err != nil {
+      return nil, err
+    }
 
-  attr, err = removeForcedSuffix(attr)
-  if err != nil {
-    return err
+    return removeForcedSuffix(attr)
   }
 
 	var tag tree.Tag
+  var err error
 	switch parentNode.Type() {
 	case SVG:
 		if !svg.IsTag(tagToken.Name()) {
 			errCtx := tagToken.Context()
 			return errCtx.NewError("Error: '" + tagToken.Name() + "' is not a valid svg tag")
 		}
+
+    attr, err := getAttr()
+    if err != nil {
+      return err
+    }
 
 		tag, err = svg.BuildTag(tagToken.Name(), attr, tagToken.Context())
 	case HTML:
@@ -118,10 +123,16 @@ func buildTree(parent Scope, parentNode Node, nt NodeType,
 			return errCtx.NewError("Error: '" + tagToken.Name() + "' is not a valid html tag")
 		}
 
+    attr, err := getAttr()
+    if err != nil {
+      return err
+    }
+
 		tag, err = tree.BuildTag(tagToken.Name(), attr, tagToken.Context())
 	default:
 		panic("unrecognized node type")
 	}
+
 	if err != nil {
 		return err
 	}
@@ -197,7 +208,7 @@ func BuildTag(scope Scope, node Node, tag *tokens.Tag) error {
 		return buildText(node, tag)
 	case scope.HasTemplate(key):
 		return BuildTemplate(scope, node, tag)
-	case IsDirective(key) && ((key != "template" && key != "var") || tag.IsDirective()):
+	case IsDirective(key) && ((key != "template" && key != patterns.TEMPLATE_VAR_KEYWORD) || tag.IsDirective()):
 		return BuildDirective(scope, node, tag)
 	case node.Type() == SVG && key == "path":
 		return buildSVGPath(scope, node, tag)
@@ -249,7 +260,7 @@ func eval(scope Scope, key string, args *tokens.Parens, ctx context.Context) (to
 		return evalNew(scope, args, ctx)
 	//case key == "search-style":
 		//return evalSearchStyle(scope, args, ctx)
-	case key == "var":
+	case key == patterns.TEMPLATE_VAR_KEYWORD:
 		return evalVar(scope, args, ctx)
   case key == "issymbol":
     return evalIsSymbol(scope, args, ctx)

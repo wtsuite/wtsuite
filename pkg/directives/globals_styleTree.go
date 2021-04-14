@@ -15,7 +15,7 @@ type PStyle struct {
 }
 
 func setParentStyle(scope Scope, node Node, ctx context.Context) {
-  v := functions.Var{&PStyle{node, ctx}, true, true, false, false, ctx}
+  v := functions.Var{&PStyle{node, ctx}, true, false, false, ctx}
 
   if err := scope.SetVar(PARENT_STYLE, v); err != nil {
     panic(err)

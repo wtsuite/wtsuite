@@ -28,6 +28,7 @@ func (p *IDBCursor) Check(other_ values.Interface, ctx context.Context) error {
 
 func (p *IDBCursor) GetInstanceMember(key string, includePrivate bool, ctx context.Context) (values.Value, error) {
   i := NewInt(ctx)
+  a := values.NewAny(ctx)
 
   switch key {
   case "advance":
@@ -42,7 +43,7 @@ func (p *IDBCursor) GetInstanceMember(key string, includePrivate bool, ctx conte
   case "delete":
     return values.NewFunction([]values.Value{NewEmptyIDBRequest(ctx)}, ctx), nil
   case "key":
-    return i, nil
+    return a, nil
   case "update":
     return values.NewFunction([]values.Value{NewObject(nil, ctx), NewEmptyIDBRequest(ctx)}, ctx), nil
   default:

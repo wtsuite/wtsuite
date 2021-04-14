@@ -53,6 +53,17 @@ func (t *Int) Dump(indent string) string {
   var b strings.Builder
 
   b.WriteString(indent)
+  b.WriteString("Int(")
+  b.WriteString(t.Write())
+  b.WriteString(")\n")
+
+	return b.String()
+}
+
+func (t *Int) Echo(indent string) string {
+  var b strings.Builder
+
+  b.WriteString(indent)
   b.WriteString(t.Write())
 
 	return b.String()

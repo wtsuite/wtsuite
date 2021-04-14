@@ -41,7 +41,10 @@ func (p *IDBObjectStore) GetInstanceMember(key string, includePrivate bool, ctx 
   case "clear":
     return values.NewFunction([]values.Value{NewEmptyIDBRequest(ctx)}, ctx), nil
   case "count":
-    return values.NewFunction([]values.Value{NewIDBRequest(i, ctx)}, ctx), nil
+    return values.NewOverloadedFunction([][]values.Value{
+      []values.Value{NewIDBRequest(i, ctx)},
+      []values.Value{NewIDBKeyRange(ctx), NewIDBRequest(i, ctx)},
+    }, ctx), nil
   case "createIndex":
     idx := NewIDBIndex(ctx)
     opt := NewConfigObject(map[string]values.Value{
@@ -73,11 +76,11 @@ func (p *IDBObjectStore) GetInstanceMember(key string, includePrivate bool, ctx 
     return values.NewFunction([]values.Value{s, idx}, ctx), nil
   case "openCursor":
     return values.NewOverloadedFunction([][]values.Value{
-      []values.Value{NewIDBCursorWithValue(ctx)},
-      []values.Value{i, NewIDBCursorWithValue(ctx)},
-      []values.Value{NewIDBKeyRange(ctx), NewIDBCursorWithValue(ctx)},
-      []values.Value{i, s, NewIDBCursorWithValue(ctx)},
-      []values.Value{NewIDBKeyRange(ctx), s, NewIDBCursorWithValue(ctx)},
+      []values.Value{NewIDBRequest(NewIDBCursorWithValue(ctx), ctx)},
+      []values.Value{i, NewIDBRequest(NewIDBCursorWithValue(ctx), ctx)},
+      []values.Value{NewIDBKeyRange(ctx), NewIDBRequest(NewIDBCursorWithValue(ctx), ctx)},
+      []values.Value{i, s, NewIDBRequest(NewIDBCursorWithValue(ctx), ctx)},
+      []values.Value{NewIDBKeyRange(ctx), s, NewIDBRequest(NewIDBCursorWithValue(ctx), ctx)},
     }, ctx), nil
   case "put":
     req := NewEmptyIDBRequest(ctx)

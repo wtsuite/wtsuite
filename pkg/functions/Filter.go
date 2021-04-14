@@ -60,15 +60,15 @@ func filterDict(scope tokens.Scope, arg0 tokens.Token, arg1 tokens.Token, ctx co
 		panic(err)
 	}
 
-	l_, err := tokens.AssertList(arg1)
+	l, err := tokens.AssertList(arg1)
 	if err != nil {
 		return nil, err
 	}
 
-	l, err := l_.EvalList(scope)
+	/*l, err := l_.EvalList(scope)
 	if err != nil {
 		return nil, err
-	}
+	}*/
 
 	res := tokens.NewEmptyStringDict(ctx)
 
@@ -121,15 +121,17 @@ func Filter(scope tokens.Scope, args_ *tokens.Parens, ctx context.Context) (toke
 		return nil, ctx.NewError("Error: expected 2 arguments")
 	}
 
-	arg0, err := args[0].Eval(scope)
+  arg0 := args[0]
+	/*arg0, err := args[0].Eval(scope)
 	if err != nil {
 		return nil, err
-	}
+	}*/
 
-	arg1, err := args[1].Eval(scope)
+  arg1 := args[1]
+	/*arg1, err := args[1].Eval(scope)
 	if err != nil {
 		return nil, err
-	}
+	}*/
 
 	if tokens.IsStringDict(arg0) {
 		return filterDict(scope, arg0, arg1, ctx)

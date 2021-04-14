@@ -107,7 +107,7 @@ func (p *Map) GetInstanceMember(key string, includePrivate bool, ctx context.Con
 
   switch key {
   case ".getof":
-    return NewTuple([]values.Value{k, item}, ctx), nil
+    return values.NewTuple([]values.Value{k, item}, ctx), nil
   case "clear":
     return values.NewFunction([]values.Value{nil}, ctx), nil
   case "delete":

@@ -55,7 +55,7 @@ func assertValidTag(nameToken *tokens.String) error {
 			patterns.NAMESPACE_SEPARATOR + "'")
 	} else if name == "template" || name == "for" || name == "if" || name == "ifelse" ||
 		name == "import" || name == "print" || name == "script" || name == "style" ||
-		name == "switch" || name == "var" || name == "else" || name == "elseif" ||
+		name == "switch" || name == patterns.TEMPLATE_VAR_KEYWORD || name == "else" || name == "elseif" ||
 		name == "case" || name == "default" ||
 		name == "replace" || name == "append" || name == "prepend" || name == "block" {
 		return errCtx.NewError("Error: invalid tag name, is already a directive")
@@ -300,7 +300,7 @@ func (c Template) instantiate(node *TemplateNode, args *tokens.StringDict,
 			return err
 		} else if ok {
       // dont set if forced but not actually available
-      vVar := functions.Var{v, true, true, false, false, v.Context()}
+      vVar := functions.Var{v, true, false, false, v.Context()}
       if err := subScope.SetVar(kVal, vVar); err != nil {
         return err
       }
@@ -340,7 +340,7 @@ func (c Template) instantiate(node *TemplateNode, args *tokens.StringDict,
           return err
         }
 
-        vVar := functions.Var{v, true, true, false, false, v.Context()}
+        vVar := functions.Var{v, true, false, false, v.Context()}
         if err := subScope.SetVar(argName, vVar); err != nil {
           return err
         }
@@ -457,7 +457,7 @@ func prepareBlocks(node *TemplateNode, tags []*tokens.Tag, insideBranch bool, ne
       if err := prepareBlocks(node, tag.Children(), insideBranch, newOpNames); err != nil {
         return err
       }
-    case "var", "template":
+    case patterns.TEMPLATE_VAR_KEYWORD, "template":
       // dont do anything
     default:
       if err := prepareBlocks(node, tag.Children(), insideBranch, newOpNames); err != nil {

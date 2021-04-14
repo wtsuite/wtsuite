@@ -85,20 +85,21 @@ func Find(scope tokens.Scope, args_ *tokens.Parens, ctx context.Context) (tokens
     return nil, ctx.NewError("Error: expected 2 arguments")
   }
 
-  arg0_, err := args[0].Eval(scope)
+  /*arg0_, err := args[0].Eval(scope)
+  if err != nil {
+    return nil, err
+  }*/
+
+  arg0, err := tokens.AssertList(args[0])
   if err != nil {
     return nil, err
   }
 
-  arg0, err := tokens.AssertList(arg0_)
-  if err != nil {
-    return nil, err
-  }
-
-	arg1, err := args[1].Eval(scope)
+  arg1 := args[1]
+	/*arg1, err := args[1].Eval(scope)
 	if err != nil {
 		return nil, err
-	}
+	}*/
 
   if IsFun(arg1) {
     fn, err := AssertFun(arg1)
@@ -108,10 +109,10 @@ func Find(scope tokens.Scope, args_ *tokens.Parens, ctx context.Context) (tokens
 
     return findWithFunction(scope, arg0, fn, ctx)
   } else {
-    arg1, err := args[1].Eval(scope)
+    /*arg1, err := args[1].Eval(scope)
     if err != nil {
       return nil, err
-    }
+    }*/
 
     return findWithIsSame(scope, arg0, arg1, ctx)
   }

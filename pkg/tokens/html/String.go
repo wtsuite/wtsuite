@@ -46,7 +46,25 @@ func (t *String) Write() string {
 	return t.value
 }
 
+func (t *String) IsLiteral() bool {
+  ctx := t.Context()
+  ctxStr := ctx.Content()
+
+  return strings.HasPrefix(ctxStr, "\"") || strings.HasPrefix(ctxStr, "'")
+}
+
 func (t *String) Dump(indent string) string {
+  var b strings.Builder
+
+  b.WriteString(indent)
+  b.WriteString("String(")
+  b.WriteString(t.Write())
+  b.WriteString(")\n")
+
+  return b.String()
+}
+
+func (t *String) Echo(indent string) string {
   var b strings.Builder
 
   b.WriteString(indent)
@@ -62,6 +80,24 @@ func IsString(t Token) bool {
 	return ok
 }
 
+func IsValueString(t_ Token, val string) bool {
+	t, ok := t_.(*String)
+	if ok {
+    return t.Value() == val
+  } else {
+    return false
+  }
+}
+
+func IsNonLiteralValueString(t_ Token, val string) bool {
+	t, ok := t_.(*String)
+	if ok {
+    return (t.Value() == val) && (!t.IsLiteral())
+  } else {
+    return false
+  }
+}
+
 func AssertString(t Token) (*String, error) {
 	if s, ok := t.(*String); !ok {
 		errCtx := t.Context()
@@ -75,7 +111,8 @@ func AssertString(t Token) (*String, error) {
 func AssertWord(t Token) (*String, error) {
   errCtx := t.Context()
 	if s, ok := t.(*String); !ok {
-		err := errCtx.NewError("Error: expected string")
+		err := errCtx.NewError("Error: expected string (got " + reflect.TypeOf(t).String() + ")")
+    panic(err)
 		return nil, err
 	} else {
     if !patterns.IsValidVar(s.Value()) {

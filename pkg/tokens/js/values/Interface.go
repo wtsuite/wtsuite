@@ -34,6 +34,8 @@ func GetInterface(v_ Value) Interface {
   switch v := v_.(type) {
   case *Instance:
     return v.GetInterface()
+  case *Tuple:
+    return v.GetInterface()
   case *LiteralIntInstance:
     return v.GetInterface()
   case *LiteralBooleanInstance:
@@ -43,4 +45,29 @@ func GetInterface(v_ Value) Interface {
   default:
     return nil
   }
+}
+
+// returns nil if some error
+func GetArrayContent(interf Interface) Value {
+  var err error
+
+  key := ".getindex"
+  ctx := context.NewDummyContext()
+
+  interf, err = FindInstanceMemberInterface(interf, key, false, ctx)
+  if err != nil {
+    return nil
+  }
+
+  fn, err := interf.GetInstanceMember(key, false, ctx)
+  if err != nil {
+    return nil
+  }
+
+  retVal, err := fn.EvalFunction([]Value{NewAny(ctx)}, false, ctx)
+  if err != nil {
+    return nil
+  }
+
+  return retVal
 }

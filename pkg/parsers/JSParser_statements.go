@@ -1,6 +1,7 @@
 package parsers
 
 import (
+  "fmt"
 	"strings"
 
 	"github.com/wtsuite/wtsuite/pkg/tokens/js"
@@ -342,6 +343,46 @@ func (p *JSParser) buildDeleteStatement(ts []raw.Token) (*js.DeleteOp,
 	return js.NewDeleteOp(expr, ts[0].Context()), remainingTokens, nil
 }
 
+func (p *JSParser) buildTypeAliasStatement(ts []raw.Token) (*js.TypeAlias, []raw.Token, error) {
+  n := len(ts)
+  if n < 4 {
+    errCtx := ts[0].Context()
+    return nil, nil, errCtx.NewError("Error: expected at least type Name = Type")
+  }
+
+  ts, remainingTokens := splitByNextSeparator(ts, patterns.SEMICOLON)
+
+  bef, aft := raw.SplitByFirstSymbol(ts, patterns.EQUAL)
+
+  if len(bef) < 2 {
+    if len(bef) == 0 {
+      errCtx := raw.MergeContexts(ts...)
+      return nil, nil, errCtx.NewError("Error: expected more tokens before =")
+    }
+
+    fmt.Println(len(bef), bef[0])
+    errCtx := raw.MergeContexts(bef...)
+    return nil, nil, errCtx.NewError("Error: expected more tokens before =")
+  }
+
+  lhs, err := p.buildVarExpression(bef[1])
+  if err != nil {
+    return nil, nil, err
+  }
+
+  rhs, err := p.buildTypeExpression(aft)
+  if err != nil {
+    return nil, nil, err
+  }
+
+  st, err := js.NewTypeAlias(lhs, rhs, raw.MergeContexts(ts...))
+  if err != nil {
+    return nil, nil, err
+  }
+
+  return st, remainingTokens, nil
+}
+
 func (p *JSParser) buildStatement(ts []raw.Token) (js.Statement, []raw.Token, error) {
 	ts = p.expandTmpGroups(ts)
 
@@ -358,6 +399,8 @@ func (p *JSParser) buildStatement(ts []raw.Token) (js.Statement, []raw.Token, er
 				panic(err)
 			}
 			return p.buildVarStatement(ts, varType)
+    case "type":
+      return p.buildTypeAliasStatement(ts)
 		case "class", "abstract", "final":
 			return p.buildClassStatement(ts)
 		case "enum":

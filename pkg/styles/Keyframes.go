@@ -3,6 +3,7 @@ package styles
 import (
   "strings"
 
+	"github.com/wtsuite/wtsuite/pkg/tokens/context"
 	tokens "github.com/wtsuite/wtsuite/pkg/tokens/html"
 )
 
@@ -15,6 +16,7 @@ type Keyframe struct {
 type KeyframesRule struct {
   id string
   kfs []*Keyframe
+  ctx context.Context
 }
 
 func NewKeyframesRule(sel Selector, key *tokens.String, attr *tokens.StringDict) ([]Rule, error) {
@@ -46,9 +48,13 @@ func NewKeyframesRule(sel Selector, key *tokens.String, attr *tokens.StringDict)
     return nil, err
   }
 
-  rule := &KeyframesRule{id, kfs}
+  rule := &KeyframesRule{id, kfs, ctx}
 
   return []Rule{rule}, nil
+}
+
+func (r *KeyframesRule) Context() context.Context {
+  return r.ctx
 }
 
 func (r *KeyframesRule) ExpandNested() ([]Rule, error) {

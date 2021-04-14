@@ -18,11 +18,11 @@ type Class struct {
 }
 
 func NewClass(args [][]Value, interf Interface, ctx context.Context) *Class {
-	return &Class{args, nil, interf, ValueData{ctx}}
+	return &Class{args, nil, interf, newValueData(ctx)}
 }
 
 func NewCustomClass(args [][]Value, fn func(args []Value, ctx_ context.Context) (Interface, error), ctx context.Context) *Class {
-  return &Class{args, fn, nil, ValueData{ctx}}
+  return &Class{args, fn, nil, newValueData(ctx)}
 }
 
 func NewUnconstructableClass(interf Interface, ctx context.Context) *Class {
@@ -32,7 +32,7 @@ func NewUnconstructableClass(interf Interface, ctx context.Context) *Class {
     } else {
       return nil, ctx_.NewError("Error: doesn't have a constructor")
     }
-  }, nil, ValueData{ctx}}
+  }, nil, newValueData(ctx)}
 }
 
 func (v *Class) GetConstructorArgs() [][]Value {

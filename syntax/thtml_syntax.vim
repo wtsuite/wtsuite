@@ -30,19 +30,19 @@ syn match Statement '^\s*\zsexport\ze\s\+'
 
 " statements can span multiple lines, so these keywords can be anywhere
 " syn keyword Statement from
-" syn region StatementAttr start='^\zs\s*\ze\(print\|var\|import\|switch\|case\|default\|export\|for\|if\|elseif\)' end='$' oneline contains=ALLBUT,Identifier,DecreaseIndent keepend transparent
+" syn region StatementAttr start='^\zs\s*\ze\(print\|const\|import\|switch\|case\|default\|export\|for\|if\|elseif\)' end='$' oneline contains=ALLBUT,Identifier,DecreaseIndent keepend transparent
 
-"syn match Statement contained '^\s\*\zs\(import\|print\|for\|switch\|case\|default\|if\|else\|elseif\|var\|function\)\ze\s\+'
+"syn match Statement contained '^\s\*\zs\(import\|print\|for\|switch\|case\|default\|if\|else\|elseif\|const\|function\)\ze\s\+'
 " syn keyword StatementKeywords from in 
 
 syn keyword TemplateKeywords contained template extends blocks super
-syn region Template start='template' end='super' contains=TemplateKeywords,Block,VarAction,Constant,String, Comment keepend
+syn region Template start='template' end='super' contains=TemplateKeywords,Block,ConstAction,Constant,String, Comment keepend
 
 syn keyword ClassKeywords contained class of
 syn region Class start='class' end='\n' contains=ClassKeywords
 
-syn keyword VarKeywords contained var 
-syn region Var start='var' end='=[^{]*' oneline contains=VarKeywords,Block,Action,Constant,String, Comment
+syn keyword ConstKeywords contained const 
+syn region Const start='const' end='=[^{]*' oneline contains=ConstKeywords,Block,Action,Constant,String, Comment
 
 syn keyword StyleKeywords contained style
 syn region Style start='style\s*[a-zA-Z_]' end='\n' oneline contains=StyleKeywords,Comment,Block,Action,Constant,String
@@ -102,7 +102,7 @@ syn region Block start='\[' end='\]' contains=Block, Action, Comment, String, Co
 
 syn match Action '\zs[\$][a-zA-Z_][a-zA-Z0-9_\.\-]*\ze'
 syn match Action '\zs[\$]\?[a-zA-Z_][a-zA-Z0-9_\.\-]*\ze[(\[]' contained
-syn match VarAction '\zs[\$][a-zA-Z_][a-zA-Z0-9_\.\-]*\ze' contained
+syn match ConstAction '\zs[\$][a-zA-Z_][a-zA-Z0-9_\.\-]*\ze' contained
 
 "syn match Statement '^\zs\(export\|import\)\ze\s\+'
 "syn keyword Statement class var if ifelse else for in switch case default dummy
@@ -140,11 +140,11 @@ syn region	Comment	start="/\*" end="\*/" extend contains=Todo
 "hi def link FunctionDef2 Normal
 
 hi def link Action PreProc
-hi def link VarAction PreProc
+hi def link ConstAction PreProc
 
 hi def link TemplateKeywords Statement
 hi def link ClassKeywords Statement
-hi def link VarKeywords Statement
+hi def link ConstKeywords Statement
 hi def link StyleKeywords Statement
 hi def link ForKeywords Statement
 hi def link AsKeyword Statement

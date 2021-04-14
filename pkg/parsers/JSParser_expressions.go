@@ -5,6 +5,7 @@ import (
 
 	"github.com/wtsuite/wtsuite/pkg/tokens/js"
 	"github.com/wtsuite/wtsuite/pkg/tokens/js/macros"
+	"github.com/wtsuite/wtsuite/pkg/tokens/js/values"
 	"github.com/wtsuite/wtsuite/pkg/tokens/patterns"
 	"github.com/wtsuite/wtsuite/pkg/tokens/raw"
 )
@@ -324,7 +325,183 @@ func (p *JSParser) buildMemberExpression(ts []raw.Token) (js.Expression, error) 
 	return js.NewMember(lhs, js.NewWord(w.Value(), w.Context()), ts[n-2].Context()), nil
 }
 
+func (p *JSParser) buildTypeExpressionContent(gr *raw.Group) ([]*js.Word, []*js.TypeExpression, error) {
+	var contentKeys []*js.Word = nil
+	var contentTypes []*js.TypeExpression = make([]*js.TypeExpression, 0)
+
+  if len(gr.Fields) == 0 || len(gr.Fields[0]) == 0 {
+    // empty content types, usefull for empty objects
+    contentKeys = make([]*js.Word, 0)
+  } else {
+
+    somePositional := false
+    someKeyed := false
+    for _, field := range gr.Fields {
+      if !raw.ContainsSymbol(field, patterns.COLON) {
+        if someKeyed {
+          errCtx := field[0].Context()
+          return nil, nil, errCtx.NewError("Error: unexpected positional content type (hint: all must be positional or all must be keyed)")
+        }
+
+        somePositional = true
+
+        contentType, err := p.buildTypeExpression(field)
+        if err != nil {
+          return nil, nil, err
+        }
+
+        contentTypes = append(contentTypes, contentType)
+      } else {
+        if somePositional {
+          errCtx := field[0].Context()
+          return nil, nil, errCtx.NewError("Error: unexpected keyed content type (hint: all must be positional or all must be keyed")
+        }
+
+        if !someKeyed {
+          contentKeys = make([]*js.Word, 0)
+          someKeyed = true
+        }
+
+        components := splitBySeparator(field, patterns.COLON)
+
+        if len(components) != 2 || len(components[0]) != 1 {
+          errCtx := raw.MergeContexts(field...)
+          return nil, nil, errCtx.NewError("Error: bad keyed content type key-value entry")
+        }
+
+        key, err := raw.AssertWord(components[0][0])
+        if err != nil {
+          return nil, nil, err
+        }
+
+        contentType, err := p.buildTypeExpression(components[1])
+        if err != nil {
+          return nil, nil, err
+        }
+
+        contentKeys = append(contentKeys, js.NewWord(key.Value(), key.Context()))
+        contentTypes = append(contentTypes, contentType)
+      }
+    }
+  }
+
+  return contentKeys, contentTypes, nil
+}
+
 func (p *JSParser) buildTypeExpression(ts []raw.Token) (*js.TypeExpression, error) {
+  // [] instead of Array
+  if len(ts) > 0 && raw.IsBracketsGroup(ts[0]) {
+    bracket, err := raw.AssertBracketsGroup(ts[0])
+    if err != nil {
+      panic(err)
+    }
+
+    if len(bracket.Fields) == 0 {
+      // array
+      var contentTypes []*js.TypeExpression = nil
+      if len(ts) > 1 {
+        if  raw.IsAngledGroup(ts[1]) {
+          errCtx := ts[1].Context()
+          return nil, errCtx.NewError("Error: []<...> should be []...")
+        }
+
+        contentType, err := p.buildTypeExpression(ts[1:])
+        if err != nil {
+          return nil, err
+        }
+
+        contentTypes = []*js.TypeExpression{contentType}
+      }
+
+      return js.NewTypeExpression("Array", nil, contentTypes, bracket.Context())
+    } else {
+      if len(ts) != 1 {
+        errCtx := raw.MergeContexts(ts...)
+        return nil, errCtx.NewError("Error: unexpected tokens")
+      }
+
+      contentKeys, contentTypes, err := p.buildTypeExpressionContent(bracket)
+      if err != nil {
+        return nil, err
+      }
+
+      return js.NewTypeExpression(values.TUPLE, contentKeys, contentTypes, bracket.Context())
+    }
+  } else if len(ts) > 0 && raw.IsParensGroup(ts[0]) {
+    parens, err := raw.AssertParensGroup(ts[0])
+    if err != nil {
+      panic(err)
+    }
+
+    var returnContentType *js.TypeExpression
+    if (len(ts) > 1 && raw.IsSymbol(ts[1], patterns.ARROW)) {
+      if len(ts) < 3 {
+        errCtx := raw.MergeContexts(ts...)
+        return nil, errCtx.NewError("Error: expected more tokens after =>")
+      }
+
+      returnContentType, err = p.buildTypeExpression(ts[2:])
+      if err != nil {
+        return nil, err
+      }
+    } else {
+      if len(ts) != 1 {
+        errCtx := raw.MergeContexts(ts...)
+        return nil, errCtx.NewError("Error: unexpected tokens")
+      }
+
+      returnContentType, err = js.NewTypeExpression("void", nil, nil, ts[0].Context())
+      if err != nil {
+        panic(err)
+      }
+    }
+
+    contentKeys, contentTypes, err := p.buildTypeExpressionContent(parens)
+    if err != nil {
+      return nil, err
+    }
+
+    contentTypes = append(contentTypes, returnContentType)
+
+    return js.NewTypeExpression("function", contentKeys, contentTypes, raw.MergeContexts(ts...))
+  } else if len(ts) > 0 && raw.IsBracesGroup(ts[0]) {
+    braces, err := raw.AssertBracesGroup(ts[0])
+    if err != nil {
+      panic(err)
+    }
+
+    if len(braces.Fields) == 0 {
+      var contentTypes []*js.TypeExpression = nil
+      if len(ts) > 1 {
+        if  raw.IsAngledGroup(ts[1]) {
+          errCtx := ts[1].Context()
+          return nil, errCtx.NewError("Error: {}<...> should be {}...")
+        }
+
+        contentType, err := p.buildTypeExpression(ts[1:])
+        if err != nil {
+          return nil, err
+        }
+
+        contentTypes = []*js.TypeExpression{contentType}
+      }
+
+      return js.NewTypeExpression("Object", nil, contentTypes, braces.Context())
+    } else {
+      if len(ts) != 1 {
+        errCtx := raw.MergeContexts(ts...)
+        return nil, errCtx.NewError("Error: unexpected tokens")
+      }
+
+      contentKeys, contentTypes, err := p.buildTypeExpressionContent(braces)
+      if err != nil {
+        return nil, err
+      }
+
+      return js.NewTypeExpression("Object", contentKeys, contentTypes, braces.Context())
+    }
+  }
+
 	nameToken, ts, err := condensePackagePeriods(ts)
 	if err != nil {
 		return nil, err
@@ -333,68 +510,15 @@ func (p *JSParser) buildTypeExpression(ts []raw.Token) (*js.TypeExpression, erro
 	var contentKeys []*js.Word = nil
 	var contentTypes []*js.TypeExpression = nil
 	if len(ts) == 1 {
-		angled, err := raw.AssertAngledGroup(ts[0])
-		if err != nil {
-			return nil, err
-		}
+    angled, err := raw.AssertAngledGroup(ts[0])
+    if err != nil {
+      return nil, err
+    }
 
-		contentTypes = make([]*js.TypeExpression, 0)
-
-		if len(angled.Fields) == 0 || len(angled.Fields[0]) == 0 {
-			// empty content types, usefull for empty objects
-			contentKeys = make([]*js.Word, 0)
-		} else {
-
-			somePositional := false
-			someKeyed := false
-			for _, field := range angled.Fields {
-				if !raw.ContainsSymbol(field, patterns.COLON) {
-					if someKeyed {
-						errCtx := field[0].Context()
-						return nil, errCtx.NewError("Error: unexpected positional content type (hint: all must be positional or all must be keyed)")
-					}
-
-					somePositional = true
-
-					contentType, err := p.buildTypeExpression(field)
-					if err != nil {
-						return nil, err
-					}
-
-					contentTypes = append(contentTypes, contentType)
-				} else {
-					if somePositional {
-						errCtx := field[0].Context()
-						return nil, errCtx.NewError("Error: unexpected keyed content type (hint: all must be positional or all must be keyed")
-					}
-
-					if !someKeyed {
-						contentKeys = make([]*js.Word, 0)
-						someKeyed = true
-					}
-
-					components := splitBySeparator(field, patterns.COLON)
-
-					if len(components) != 2 || len(components[0]) != 1 {
-						errCtx := raw.MergeContexts(field...)
-						return nil, errCtx.NewError("Error: bad keyed content type key-value entry")
-					}
-
-					key, err := raw.AssertWord(components[0][0])
-					if err != nil {
-						return nil, err
-					}
-
-					contentType, err := p.buildTypeExpression(components[1])
-					if err != nil {
-						return nil, err
-					}
-
-					contentKeys = append(contentKeys, js.NewWord(key.Value(), key.Context()))
-					contentTypes = append(contentTypes, contentType)
-				}
-			}
-		}
+    contentKeys, contentTypes, err = p.buildTypeExpressionContent(angled)
+    if err != nil {
+      return nil, err
+    }
 	} else if len(ts) > 1 {
 		errCtx := raw.MergeContexts(ts...)
     err := errCtx.NewError("Error: bad type expression")

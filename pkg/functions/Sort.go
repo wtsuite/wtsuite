@@ -159,10 +159,11 @@ func Sort(scope tokens.Scope, args_ *tokens.Parens, ctx context.Context) (tokens
 		return nil, ctx.NewError("Error: expected 1 or 2 arguments")
 	}
 
-	arg0, err := args[0].Eval(scope)
+  arg0 := args[0]
+	/*arg0, err := args[0].Eval(scope)
 	if err != nil {
 		return nil, err
-	}
+	}*/
 
 	list, err := tokens.AssertList(arg0)
 	if err != nil {

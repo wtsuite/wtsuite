@@ -39,6 +39,6 @@ syn keyword Constant null
 syn keyword Keyword console document super this window
 syn keyword Label case default
 syn keyword Exception try catch finally throw
-syn keyword Keyword abstract any as async await cast class const constIfUndefined constructor enum export extends from function get implements import interface let new private rpc set static universe var void
+syn keyword Keyword abstract any as async await cast class const constIfUndefined constructor enum export extends from function get implements import interface let new private rpc set static type universe var void
 
 let b:current_syntax = "wts"

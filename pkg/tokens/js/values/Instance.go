@@ -11,7 +11,7 @@ type Instance struct {
 }
 
 func newInstance(interf Interface, ctx context.Context) Instance {
-  return Instance{interf, ValueData{ctx}}
+  return Instance{interf, newValueData(ctx)}
 }
 
 func NewInstance(interf Interface, ctx context.Context) Value {
@@ -38,6 +38,20 @@ func (v *Instance) Check(other_ Value, ctx context.Context) error {
     }
 
     return nil
+  case *Tuple:
+    // only Array can check Tuple
+    content := GetArrayContent(v.interf)
+    if content != nil {
+      for _, item := range other.items {
+        if err := content.Check(item, ctx); err != nil {
+          return ctx.NewError("Error: expected " + v.TypeName() + ", got " + other.TypeName())
+        }
+      }
+
+      return nil
+    } else {
+      return ctx.NewError("Error: expected " + v.TypeName() + ", got " + other.TypeName())
+    }
   case *LiteralIntInstance: 
     // first match the interface
     if err := v.interf.Check(other.interf, ctx); err != nil {

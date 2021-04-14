@@ -15,7 +15,7 @@ func setNChildren(scope Scope, ctx context.Context) {
     return tokens.NewValueInt(tag.NumChildren(), ctx), nil
   }, ctx)
 
-  valVar := functions.Var{val, true, true, false, false, ctx}
+  valVar := functions.Var{val, true, false, false, ctx}
 
   if err := scope.SetVar(NCHILDREN, valVar); err != nil {
     panic(err)
@@ -33,7 +33,7 @@ func setNSiblings(scope Scope, ctx context.Context) {
     }
   }, ctx)
 
-  valVar := functions.Var{val, true, true, false, false, ctx}
+  valVar := functions.Var{val, true, false, false, ctx}
 
   if err := scope.SetVar(NSIBLINGS, valVar); err != nil {
     panic(err)

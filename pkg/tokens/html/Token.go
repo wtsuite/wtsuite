@@ -51,3 +51,30 @@ func MergeContexts(ts ...Token) context.Context {
 
 	return context.MergeContexts(ctxs...)
 }
+
+func ChangeContext(t_ Token, ctx context.Context) Token {
+  // XXX: should we copy instead?
+  switch t := t_.(type) {
+  case *Bool:
+    t.ctx = ctx
+  case *Color:
+    t.ctx = ctx
+  case *Float:
+    t.ctx = ctx
+  case *Int:
+    t.ctx = ctx
+  case *List:
+    t.ctx = ctx
+  case *Null:
+    t.ctx = ctx
+  case *Parens:
+    t.ctx = ctx
+  case *StringDict:
+    t.ctx = ctx
+  case *String:
+    t.ctx = ctx
+  default:
+  }
+
+  return t_
+}

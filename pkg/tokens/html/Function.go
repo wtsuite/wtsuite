@@ -1,6 +1,7 @@
 package html
 
 import (
+  "strconv"
 	"strings"
 
 	"github.com/wtsuite/wtsuite/pkg/tokens/context"
@@ -61,7 +62,79 @@ func AssertFunction(t Token) (*Function, error) {
 	}
 }
 
+func (t *Function) EvalPartial(scope Scope) (Token, error) {
+  outerVals := make([]Token, 0)
+  outerAlts := make([]Token, 0)
+
+  innerVals := make([]Token, 0)
+  innerAlts := make([]Token, 0)
+
+  anyPartial := false
+
+  for i, v := range t.args.Values() {
+    a := t.args.Alts()[i]
+    j := len(outerVals)
+    outerName := "x" + strconv.Itoa(j)
+    outerArg := NewValueString(outerName, v.Context())
+    innerArg := NewFunction("get", []Token{outerArg}, v.Context())
+
+    if IsNonLiteralValueString(v, "_") {
+      if a != nil {
+        errCtx := a.Context()
+        return nil, errCtx.NewError("Error: unexpected kwarg")
+      }
+
+      outerVals = append(outerVals, outerArg)
+      outerAlts = append(outerAlts, nil)
+
+      innerVals = append(innerVals, innerArg)
+      innerAlts = append(innerAlts, nil)
+
+      anyPartial = true
+    } else if IsNonLiteralValueString(a, "_") {
+      if _, err := AssertString(v); err != nil {
+        return nil, err
+      }
+
+      outerVals = append(outerVals, v)
+      outerAlts = append(outerAlts, outerArg)
+
+      innerVals = append(innerVals, v)
+      innerAlts = append(innerAlts, innerArg)
+
+      anyPartial = true
+    } else {
+      innerVals = append(innerVals, v)
+      innerAlts = append(innerAlts, a)
+    }
+  }
+
+  if anyPartial {
+    outerArgs := NewParens(outerVals, outerAlts, t.Context())
+    innerArgs := NewParens(innerVals, innerAlts, t.Context())
+
+    inner := NewValueFunction(t.name, innerArgs, t.Context())
+
+    fn := NewFunction("function", []Token{outerArgs, inner}, t.Context())
+
+    return fn.Eval(scope)
+  } else {
+    return nil, nil
+  }
+}
+
 func (t *Function) Eval(scope Scope) (Token, error) {
+  // if any of the args are underscores then a partially applied function is returned
+  partial, err := t.EvalPartial(scope); 
+  if err != nil {
+    panic(err)
+    return nil, err
+  }
+
+  if partial != nil {
+    return partial, nil
+  }
+
   res, err := scope.Eval(t.name, t.args, t.Context())
   if err != nil {
     return nil, err
@@ -73,7 +146,7 @@ func (t *Function) Eval(scope Scope) (Token, error) {
     panic(err)
   }
 
-  return res, nil
+  return ChangeContext(res, t.Context()), nil
 }
 
 func (t *Function) EvalLazy(tag FinalTag) (Token, error) {

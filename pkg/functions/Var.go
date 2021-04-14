@@ -10,7 +10,6 @@ import (
 
 type Var struct {
 	Value    tokens.Token
-	Constant bool
 	Auto     bool
 	Imported bool
 	Exported bool

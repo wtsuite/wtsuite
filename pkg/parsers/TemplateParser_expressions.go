@@ -166,8 +166,6 @@ func (p *TemplateParser) nestAndBuildExpression(ts []raw.Token) (html.Token, err
 		return nil, err
 	}
 
-	//tsInner = p.expandTmpGroups(tsInner)
-
   return p.buildExpression(tsInner)
 }
 
@@ -219,10 +217,24 @@ func (p *TemplateParser) buildExpression(vs []raw.Token) (html.Token, error) {
         return nil, errCtx.NewError("Internal Error: whitespace not filtered out")
       }
 
-			return nil, errCtx.NewError("Error: invalid syntax")
+      err := errCtx.NewError("Error: invalid syntax")
+      panic(err)
+			return nil, err
 		}
 	default:
-		if len(vs) >= 3 && raw.IsAnyWord(vs[0]) && raw.IsParensGroup(vs[1]) && raw.IsBracesGroup(vs[2]) {
+    /*if len(vs) >= 3 && raw.ContainsSymbol(vs[1:len(vs)-1], patterns.ARROW) {
+      fn, remaining, err := p.buildArrowFunctionExpression(vs)
+      if err != nil {
+        return nil, err
+      }
+
+      if len(remaining) == 0 {
+        return fn, nil
+      } else {
+        return p.buildEvalsAndIndexing(fn, remaining)
+      }
+    } else */
+    if len(vs) >= 3 && raw.IsAnyWord(vs[0]) && raw.IsParensGroup(vs[1]) && raw.IsBracesGroup(vs[2]) {
 			fn, remaining, err := p.buildDefineFunctionExpression(vs)
 			if err != nil {
 				return nil, err
@@ -273,6 +285,47 @@ func (p *TemplateParser) buildExpression(vs []raw.Token) (html.Token, error) {
 
 func (p *TemplateParser) buildOperatorExpression(v *raw.Operator) (html.Token, error) {
 	switch {
+  case v.Name() == "bin=>":
+    // pipe operator is just syntactic suger for calls
+		ab, err := raw.AssertBinaryOperator(v, "bin=>")
+		if err != nil {
+			return nil, err
+		}
+
+    argParens, err := p.wrapFunctionParens(ab.Args()[0:1])
+    if err != nil {
+      return nil, err
+    }
+
+    bodyBraces, remaining, err := p.wrapFunctionBraces(ab.Args()[1:2])
+    if err != nil {
+      return nil, err
+    }
+
+    if len(remaining) != 0 {
+      errCtx := raw.MergeContexts(remaining...)
+      return nil, errCtx.NewError("Error: unexpected")
+    }
+
+    return p.buildDefineFunctionExpressionInternal(argParens, bodyBraces)
+  case v.Name() == "bin|":
+    // pipe operator is just syntactic suger for calls
+		ab, err := raw.AssertBinaryOperator(v, "bin|")
+		if err != nil {
+			return nil, err
+		}
+
+		a, err := p.buildExpression(ab.Args()[0:1])
+		if err != nil {
+			return nil, err
+		}
+
+		b, err := p.buildExpression(ab.Args()[1:2])
+		if err != nil {
+			return nil, err
+		}
+
+		return html.NewFunction("eval", []html.Token{b, html.NewValuesList([]html.Token{a}, a.Context())}, v.Context()), nil
 	case v.Name() == "bin:" && raw.IsBinaryOperator(v.Args()[0], "bin?"): // actually a ternary operator
 
 		ab, err := raw.AssertBinaryOperator(v.Args()[0], "bin?")
@@ -326,26 +379,41 @@ func (p *TemplateParser) buildOperatorExpression(v *raw.Operator) (html.Token, e
     cond := html.NewFunction("eq", []html.Token{a, html.NewNull(v.Context())}, v.Context())
 
     return html.NewFunction("ifelse", []html.Token{cond, b, a}, v.Context()), nil
-	case v.Name() == "bin:=": // lhs must be word
+	case v.Name() == "bin=": // lhs must be word
 		// accept word or string
-		arg0 := v.Args()[0]
+    lhsTokens := p.expandTmpGroups(v.Args()[0:1])
 
-		if raw.IsAnyWord(arg0) {
-			a, err := raw.AssertWord(arg0)
-			if err != nil {
-				panic("unexpected")
-			}
+    lhsFields := raw.SplitBySymbol(lhsTokens, patterns.COMMA)
+    if len(lhsFields) == 0 {
+      errCtx := v.Context()
+      return nil, errCtx.NewError("Error: bad lhs")
+    }
 
-			b, err := p.buildExpression(v.Args()[1:2])
-			if err != nil {
-				return nil, err
-			}
+    nameTokens := make([]html.Token, 0)
+    for _, lhsField := range lhsFields {
+      if len(lhsField) == 0 {
+        errCtx := v.Context()
+        return nil, errCtx.NewError("Error: bad lhs")
+      } else if len(lhsField) != 1 {
+        errCtx := raw.MergeContexts(lhsField...)
+        return nil, errCtx.NewError("Error: bad lhs")
+      }
 
-			return html.NewFunction("new", []html.Token{html.NewValueString(a.Value(), a.Context()), b}, v.Context()), nil
-		} else {
-			errCtx := v.Context()
-			return nil, errCtx.NewError("Error: lhs must be word (hint: missing semicolon?)")
-		}
+      lhsWord, err := raw.AssertWord(lhsField[0])
+      if err != nil {
+        return nil, err
+      }
+
+      nameTokens = append(nameTokens, html.NewValueString(lhsWord.Value(), lhsWord.Context()))
+    }
+
+    b, err := p.buildExpression(v.Args()[1:2])
+    if err != nil {
+      return nil, err
+    }
+
+    argTokens := append(nameTokens, b)
+    return html.NewFunction("new", argTokens, v.Context()), nil
 	case strings.HasPrefix(v.Name(), "bin"):
 		a, err := p.buildExpression(v.Args()[0:1])
 		if err != nil {
@@ -415,6 +483,7 @@ func (p *TemplateParser) buildParensGroupExpression(v *raw.Group) (*html.Parens,
 		values := make([]html.Token, 0)
 		alts := make([]html.Token, 0) // if first token is string, and second is '=', then remainder is alt, otherwise nil
 		for _, field := range v.Fields {
+      // TODO: 
 			if raw.IsBinaryOperator(field[0], "bin=") {
 				eq, err := raw.AssertBinaryOperator(field[0], "bin=")
 				if err != nil {
@@ -444,7 +513,9 @@ func (p *TemplateParser) buildParensGroupExpression(v *raw.Group) (*html.Parens,
 			}
 		}
 
-		return html.NewParens(values, alts, v.Context()), nil
+    ctx := v.Context()
+    ctx = context.SimpleFill(ctx, ctx)
+		return html.NewParens(values, alts, ctx), nil
 	} else {
 		errCtx := v.Context()
 		return nil, errCtx.NewError("Error: bad parens")
@@ -569,6 +640,101 @@ func (p *TemplateParser) buildGroupExpression(v *raw.Group) (html.Token, error) 
 	}
 }
 
+func (p *TemplateParser) wrapFunctionParens(vs []raw.Token) (*raw.Group, error) {
+  vs = p.expandTmpGroups(vs)
+
+  var err error
+  var argParens *raw.Group 
+
+  if len(vs) != 1 || !raw.IsParensGroup(vs[0]) {
+    ctx := raw.MergeContexts(vs...)
+    if raw.ContainsSymbol(vs, patterns.COMMA) {
+      errCtx := ctx
+      return nil, errCtx.NewError("Error: wrap with parenthesis")
+    }
+
+    first := raw.NewSymbol(patterns.PARENS_START, false, ctx)
+    last := raw.NewSymbol(patterns.PARENS_STOP, false, ctx)
+    all := append([]raw.Token{first}, vs...)
+    all = append(all, last)
+
+    argParens, err = raw.NewGroupFromTokens(all)
+    if err != nil {
+      return nil, err
+    }
+  } else {
+    argParens, err = raw.AssertParensGroup(vs[0])
+    if err != nil {
+      panic(err)
+    }
+  }
+
+  return argParens, nil
+}
+
+func (p *TemplateParser) wrapFunctionBraces(vs []raw.Token) (*raw.Group, []raw.Token, error) {
+  vs = p.expandTmpGroups(vs)
+
+  remaining := []raw.Token{}
+
+  var err error
+  var bodyBraces *raw.Group
+
+  if raw.IsBracesGroup(vs[0]) {
+    bodyBraces, err = raw.AssertBracesGroup(vs[0])
+    if err != nil {
+      panic(err)
+    }
+
+    remaining = vs[1:]
+  } else {
+    ctx := raw.MergeContexts(vs...)
+    if raw.ContainsSymbol(vs, patterns.SEMICOLON) || raw.ContainsSymbol(vs, patterns.COMMA) {
+      errCtx := ctx
+      return nil, nil, errCtx.NewError("Error: must be wrapped with braces")
+    }
+
+    first := raw.NewSymbol(patterns.BRACES_START, false, ctx)
+    last := raw.NewSymbol(patterns.BRACES_STOP, false, ctx)
+    all := append([]raw.Token{first}, vs...)
+    all = append(all, last)
+
+    bodyBraces, err = raw.NewGroupFromTokens(all)
+    if err != nil {
+      return nil, nil, err
+    }
+  }
+
+  return bodyBraces, remaining, nil
+}
+
+func (p *TemplateParser) buildArrowFunctionExpression(vs []raw.Token) (html.Token, []raw.Token, error) {
+  // XXX: or use SplitByFirstSymbol
+  fields := raw.SplitBySymbol(vs, patterns.ARROW)
+
+  if len(fields) != 2 {
+    errCtx := raw.MergeContexts(vs...)
+    return nil, nil, errCtx.NewError("Error: bad arrow function")
+  }
+
+  argParens, err := p.wrapFunctionParens(fields[0])
+  if err != nil {
+    return nil, nil, err
+  }
+
+  bodyBraces, remaining, err := p.wrapFunctionBraces(fields[1])
+  if err != nil {
+    return nil, nil, err
+  }
+
+  fn, err := p.buildDefineFunctionExpressionInternal(argParens, bodyBraces)
+  if err != nil {
+    return nil, nil, err
+  }
+
+  return fn, remaining, nil
+}
+
 func (p *TemplateParser) buildDefineFunctionExpression(vs []raw.Token) (html.Token, []raw.Token, error) {
 	// new function
 	a, err := raw.AssertWord(vs[0])
@@ -586,39 +752,90 @@ func (p *TemplateParser) buildDefineFunctionExpression(vs []raw.Token) (html.Tok
 		panic("unexpected")
 	}
 
-	argsWithDefaults, err := p.buildParensGroupExpression(argsGroup)
-	if err != nil {
-		return nil, nil, err
-	}
-
 	statementsGroup, err := raw.AssertBracesGroup(vs[2])
 	if err != nil {
 		return nil, nil, err
 	}
 
-	if !(statementsGroup.IsSingle() || statementsGroup.IsSemiColon()) {
-		errCtx := vs[2].Context()
-		return nil, nil, errCtx.NewError("Error: bad statements for function def")
+  fn, err := p.buildDefineFunctionExpressionInternal(argsGroup, statementsGroup)
+  if err != nil {
+    return nil, nil, err
+  }
+
+  return fn, vs[3:], nil
+}
+
+func (p *TemplateParser) buildDefineFunctionExpressionInternal(argsGroup *raw.Group, statementsGroup *raw.Group) (html.Token, error) {
+	argsWithDefaults, err := p.buildParensGroupExpression(argsGroup)
+	if err != nil {
+		return nil, err
 	}
 
-	statements := make([]html.Token, 0)
+  statements := make([]html.Token, 0)
 
-	for _, field := range statementsGroup.Fields {
-		st, err := p.buildExpression(field)
-		if err != nil {
-			return nil, nil, err
-		}
+  addStatement := func(ts []raw.Token, last bool) error {
+    ctx := raw.MergeContexts(ts...)
 
-		statements = append(statements, st)
-	}
+    if last && raw.ContainsSymbol(ts, patterns.COMMA) {
+      returnFields := raw.SplitBySymbol(ts, patterns.COMMA)
+      returnExprs := make([]html.Token, 0)
+      for _, returnField := range returnFields {
+        if len(returnField) == 0 {
+          errCtx := ctx
+          return errCtx.NewError("Error: bad return field")
+        }
+
+        expr, err := p.buildExpression(returnField)
+        if err != nil {
+          return err
+        }
+
+        returnExprs = append(returnExprs, expr)
+      }
+
+      st := html.NewFunction("spread", []html.Token{html.NewValuesList(returnExprs, ctx)}, ctx)
+      statements = append(statements, st)
+    } else {
+      st, err := p.buildExpression(ts)
+      if err != nil {
+        return err
+      }
+
+      statements = append(statements, st)
+    }
+
+    return nil
+  }
+
+	ctx := statementsGroup.Context()
+  if (statementsGroup.IsComma()) {
+    field, err := statementsGroup.FlattenCommas()
+    if err != nil {
+      return nil, err
+    }
+
+    if err := addStatement(p.expandTmpGroups(field), true); err != nil {
+      return nil, err
+    }
+  } else if !(statementsGroup.IsSingle() || statementsGroup.IsSemiColon()) {
+		errCtx := ctx
+		return nil, errCtx.NewError("Error: bad statements for function def")
+	} else {
+    for i, field := range statementsGroup.Fields {
+      isLast := i == len(statementsGroup.Fields)-1
+      if err := addStatement(p.expandTmpGroups(field), isLast); err != nil {
+        panic(err)
+        return nil, err
+      }
+    }
+  }
 
 	// wrap statements in a get
-	ctx := vs[2].Context()
 	list := html.NewValuesList(statements, ctx)
 	index := html.NewValueInt(len(statements)-1, ctx)
 	wrapper := html.NewFunction("get", []html.Token{list, index}, ctx)
 
-	return html.NewFunction("function", []html.Token{argsWithDefaults, wrapper}, ctx), vs[3:], nil
+	return html.NewFunction("function", []html.Token{argsWithDefaults, wrapper}, ctx), nil
 }
 
 // also return the remaining
@@ -723,7 +940,9 @@ func (p *TemplateParser) buildEvalsAndIndexing(obj html.Token, vs []raw.Token) (
         for i, wPart := range wParts {
           if !patterns.IsValidVar(wPart) {
             errCtx := v.Context()
-            return nil, errCtx.NewError("Error: invalid syntax")
+            err := errCtx.NewError("Error: invalid syntax")
+            panic(err)
+            return nil, err
           }
 
           obj = html.NewFunction("get", []html.Token{

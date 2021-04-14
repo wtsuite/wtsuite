@@ -3,6 +3,7 @@ package styles
 import (
   "strings"
 
+	"github.com/wtsuite/wtsuite/pkg/tokens/context"
 	tokens "github.com/wtsuite/wtsuite/pkg/tokens/html"
 )
 
@@ -10,6 +11,7 @@ type Rule interface {
   ExpandNested() ([]Rule, error) // includes self as first
   //ExpandLazy(root *tree.Root) ([]Rule, error) // modifies the root!, adding rules, but keeping all the originals untouched, any remaining lazy values are ignored in the core rule output
   Write(indent string, nl string, tab string) (string, error)
+  Context() context.Context
 }
 
 type RuleData struct {
@@ -23,6 +25,10 @@ func NewRule(sel Selector, attr *tokens.StringDict) *RuleData {
 
 func (r *RuleData) IsLazy() bool {
   return r.attr.ContainsLazy()
+}
+
+func (r *RuleData) Context() context.Context {
+  return r.sel.Context()
 }
 
 // so it can be reused by AtRule

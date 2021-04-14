@@ -5,10 +5,11 @@ import (
 
 	tokens "github.com/wtsuite/wtsuite/pkg/tokens/html"
 	"github.com/wtsuite/wtsuite/pkg/tokens/raw"
+	"github.com/wtsuite/wtsuite/pkg/tree"
 )
 
 type AttrFilter interface {
-  Match(attr *tokens.StringDict) bool
+  Match(tag tree.Tag) bool
   Write() string
 }
 
@@ -18,18 +19,41 @@ type AttrFilterData struct {
   ci bool
 }
 
-func (f *AttrFilterData) getValue(attr *tokens.StringDict) (string, bool) {
-  v_, ok := attr.Get(f.name)
-  if ok && tokens.IsPrimitive(v_) {
-    v, err := tokens.AssertPrimitive(v_)
-    if err != nil {
-      panic(err)
+func (f *AttrFilterData) getValue(tag tree.Tag) (string, bool) {
+  switch f.name {
+  case "id":
+    id := tag.GetID()
+    if id == "" {
+      return "", false
+    } else {
+      return id, true
+    }
+  case "class":
+    tag_, ok := tag.(tree.VisibleTag)
+    if ok {
+      classes := tag_.GetClasses()
+      if classes == nil || len(classes) == 0 {
+        return "", false
+      } else {
+        return strings.Join(classes, " "), true
+      }
+    } else {
+      return "", false
+    }
+  default:
+    attr := tag.Attributes()
+    v_, ok := attr.Get(f.name)
+    if ok && tokens.IsPrimitive(v_) {
+      v, err := tokens.AssertPrimitive(v_)
+      if err != nil {
+        panic(err)
+      }
+
+      return v.Write(), true
     }
 
-    return v.Write(), true
+    return "", false
   }
-
-  return "", false
 }
 
 func (f *AttrFilterData) getComp(v string) (string, string) {
@@ -65,8 +89,8 @@ func NewPlainAttrFilter(name string) *PlainAttrFilter {
   return &PlainAttrFilter{AttrFilterData{name, "", false}}
 }
 
-func (f *PlainAttrFilter) Match(attr *tokens.StringDict) bool {
-  _, ok := f.getValue(attr)
+func (f *PlainAttrFilter) Match(tag tree.Tag) bool {
+  _, ok := f.getValue(tag)
   return ok
 }
 
@@ -83,8 +107,8 @@ func NewExactAttrFilter(name string, value string, ci bool) *ExactAttrFilter {
   return &ExactAttrFilter{AttrFilterData{name, value, ci}}
 }
 
-func (f *ExactAttrFilter) Match(attr *tokens.StringDict) bool {
-  v, ok := f.getValue(attr)
+func (f *ExactAttrFilter) Match(tag tree.Tag) bool {
+  v, ok := f.getValue(tag)
   if ok {
     v, comp := f.getComp(v)
 
@@ -106,8 +130,8 @@ func NewFieldAttrFilter(name string, value string, ci bool) *FieldAttrFilter {
   return &FieldAttrFilter{AttrFilterData{name, value, ci}}
 }
 
-func (f *FieldAttrFilter) Match(attr *tokens.StringDict) bool {
-  v, ok := f.getValue(attr)
+func (f *FieldAttrFilter) Match(tag tree.Tag) bool {
+  v, ok := f.getValue(tag)
   if ok {
     fields := strings.Fields(v)
     for _, field := range fields {
@@ -132,8 +156,8 @@ func NewSubcodeAttrFilter(name string, value string, ci bool) *SubcodeAttrFilter
   return &SubcodeAttrFilter{AttrFilterData{name, value, ci}}
 }
 
-func (f *SubcodeAttrFilter) Match(attr *tokens.StringDict) bool {
-  v, ok := f.getValue(attr)
+func (f *SubcodeAttrFilter) Match(tag tree.Tag) bool {
+  v, ok := f.getValue(tag)
   if ok {
     v, comp := f.getComp(v)
 
@@ -157,8 +181,8 @@ func NewPrefixAttrFilter(name string, value string, ci bool) *PrefixAttrFilter {
   return &PrefixAttrFilter{AttrFilterData{name, value, ci}}
 }
 
-func (f *PrefixAttrFilter) Match(attr *tokens.StringDict) bool {
-  v, ok := f.getValue(attr)
+func (f *PrefixAttrFilter) Match(tag tree.Tag) bool {
+  v, ok := f.getValue(tag)
   if ok {
     v, comp := f.getComp(v)
 
@@ -182,8 +206,8 @@ func NewSuffixAttrFilter(name string, value string, ci bool) *SuffixAttrFilter {
   return &SuffixAttrFilter{AttrFilterData{name, value, ci}}
 }
 
-func (f *SuffixAttrFilter) Match(attr *tokens.StringDict) bool {
-  v, ok := f.getValue(attr)
+func (f *SuffixAttrFilter) Match(tag tree.Tag) bool {
+  v, ok := f.getValue(tag)
   if ok {
     v, comp := f.getComp(v)
     
@@ -207,8 +231,8 @@ func NewContainsAttrFilter(name string, value string, ci bool) *ContainsAttrFilt
   return &ContainsAttrFilter{AttrFilterData{name, value, ci}}
 }
 
-func (f *ContainsAttrFilter) Match(attr *tokens.StringDict) bool {
-  v, ok := f.getValue(attr)
+func (f *ContainsAttrFilter) Match(tag tree.Tag) bool {
+  v, ok := f.getValue(tag)
   if ok {
     v, comp := f.getComp(v) 
 

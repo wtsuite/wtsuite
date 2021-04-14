@@ -56,6 +56,8 @@ func (p *Document) GetInstanceMember(key string, includePrivate bool, ctx contex
     return NewFontFaceSet(ctx), nil
   case "getElementById", "querySelector":
     return values.NewFunction([]values.Value{s, elem}, ctx), nil
+  case "querySelectorAll":
+    return values.NewFunction([]values.Value{s, NewArray(elem, ctx)}, ctx), nil
   case "hidden":
     return b, nil
   case "visibilityState":

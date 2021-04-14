@@ -1,6 +1,9 @@
 package prototypes
 
 import (
+  "sort"
+  "strings"
+
   "github.com/wtsuite/wtsuite/pkg/tokens/js/values"
 
   "github.com/wtsuite/wtsuite/pkg/tokens/context"
@@ -58,6 +61,43 @@ func IsObject(v values.Value) bool {
   checkVal := NewObject(nil, ctx)
 
   return checkVal.Check(v, ctx) == nil
+}
+
+func (p *Object) Name() string {
+  var b strings.Builder
+
+  if p.members != nil {
+    b.WriteString("{")
+
+    keys := make([]string, 0)
+    for k, _ := range p.members {
+      keys = append(keys, k)
+    }
+
+    sort.Strings(keys)
+
+    for i, k := range keys {
+      v := p.members[k]
+      b.WriteString(k)
+      b.WriteString(":")
+      b.WriteString(v.TypeName())
+
+      if i < len(keys) - 1 {
+        b.WriteString(",")
+      }
+    }
+
+    b.WriteString("}")
+  } else {
+    if p.common == nil || p.common.TypeName() == "any" {
+      b.WriteString("Object")
+    } else {
+      b.WriteString("{}")
+      b.WriteString(p.common.TypeName())
+    }
+  } 
+
+  return b.String()
 }
 
 func (p *Object) IsUniversal() bool {

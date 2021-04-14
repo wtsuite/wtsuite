@@ -1,6 +1,7 @@
 package styles
 
 import (
+	"github.com/wtsuite/wtsuite/pkg/tokens/context"
 	tokens "github.com/wtsuite/wtsuite/pkg/tokens/html"
 	"github.com/wtsuite/wtsuite/pkg/tree"
 )
@@ -13,6 +14,10 @@ type AtSelector struct {
 
 func NewAtSelector(key *tokens.String) *AtSelector {
   return &AtSelector{nil, key}
+}
+
+func (s *AtSelector) Context() context.Context {
+  return s.key.Context()
 }
 
 func (s *AtSelector) SetParent(parent *AtSelector) {

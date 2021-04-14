@@ -115,7 +115,7 @@ func Caps(scope tokens.Scope, args_ *tokens.Parens, ctx context.Context) (tokens
 }
 
 func Slug(scope tokens.Scope, args_ *tokens.Parens, ctx context.Context) (tokens.Token, error) {
-  args, err := CompleteArgs(args_, NewUnaryInterface(ctx))
+  args, err := CompleteArgs(args_, nil)
   if err != nil {
     return nil, err
   }
@@ -125,11 +125,23 @@ func Slug(scope tokens.Scope, args_ *tokens.Parens, ctx context.Context) (tokens
     return nil, err
   }
 
+  sep := "-"
+  if len(args) == 2 {
+    sepToken, err := tokens.AssertString(args[1])
+    if err != nil {
+      return nil, err
+    }
+
+    sep = sepToken.Value()
+  } else if len(args) != 1 {
+    return nil, ctx.NewError("Error: expected 2 arguments")
+  }
+
   fields := strings.FieldsFunc(strings.ToLower(s.Value()), func(r rune) bool {
-    if r >= 48 || r <= 57 {
+    if r >= 48 && r <= 57 {
       // digits
       return false
-    } else if r >= 97 || r <= 122 {
+    } else if r >= 97 && r <= 122 {
       // (lower case) letters
       return false
     } else {
@@ -138,7 +150,7 @@ func Slug(scope tokens.Scope, args_ *tokens.Parens, ctx context.Context) (tokens
   })
 
 
-  result := strings.Join(fields, "-")
+  result := strings.Join(fields, sep)
 
   return tokens.NewValueString(result, ctx), nil
 }

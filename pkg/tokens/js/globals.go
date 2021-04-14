@@ -125,7 +125,6 @@ func FillCoreScope(scope Scope) {
   registerPrototype(scope, pr.NewRPCServerPrototype())
   registerPrototype(scope, pr.NewSetPrototype(nil))
   registerPrototype(scope, pr.NewStringPrototype())
-  registerPrototype(scope, pr.NewTuplePrototype(nil))
   registerPrototype(scope, pr.NewUint8ArrayPrototype())
   registerPrototype(scope, pr.NewUint16ArrayPrototype())
   registerPrototype(scope, pr.NewUint32ArrayPrototype())
@@ -135,6 +134,11 @@ func FillCoreScope(scope Scope) {
   registerValue(scope, "console", pr.NewConsole(ctx))
   registerValue(scope, "setInterval", pr.NewSetTimeoutFunction(ctx))
   registerValue(scope, "setTimeout", pr.NewSetTimeoutFunction(ctx))
+
+  uriFn := values.NewFunction([]values.Value{pr.NewString(ctx), pr.NewString(ctx)}, ctx)
+
+  registerValue(scope, "decodeURIComponent", uriFn)
+  registerValue(scope, "encodeURIComponent", uriFn)
 
   registerPackage(scope, "JSON", pr.FillJSONPackage)
   registerPackage(scope, "Math", pr.FillMathPackage)
@@ -230,14 +234,11 @@ func FillBrowserScope(scope Scope) {
 
   ctx := context.NewDummyContext()
 
-  uriFn := values.NewFunction([]values.Value{pr.NewString(ctx), pr.NewString(ctx)}, ctx)
 
   registerValue(scope, "document", pr.NewDocument(ctx))
   registerValue(scope, "window", pr.NewWindow(ctx))
   registerValue(scope, "navigator", pr.NewNavigator(ctx))
 
-  registerValue(scope, "decodeURIComponent", uriFn)
-  registerValue(scope, "encodeURIComponent", uriFn)
   registerValue(scope, "requestIdleCallback", pr.NewRequestIdleCallbackFunction(ctx))
 
   // not yet available in worker, because not supported by many browsers

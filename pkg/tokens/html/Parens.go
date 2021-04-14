@@ -49,14 +49,12 @@ func (t *Parens) Dump(indent string) string {
 	var b strings.Builder
 
 	b.WriteString(indent)
-	b.WriteString("Parens(\n")
+	b.WriteString("Parens\n")
 
 	for i, v := range t.values {
-		b.WriteString(v.Dump(indent + "  "))
-		b.WriteString("\n")
+		b.WriteString(v.Dump(indent + "( "))
 		if t.alts[i] != nil {
-			b.WriteString(t.alts[i].Dump(indent + "= "))
-			b.WriteString("\n")
+			b.WriteString(t.alts[i].Dump(indent + "( = "))
 		}
 	}
 
@@ -67,18 +65,22 @@ func (t *Parens) Eval(scope Scope) (Token, error) {
 	if len(t.values) != 1 || t.alts[0] != nil {
 		errCtx := t.Context()
 		err := errCtx.NewError("Error: bad parens (not a function or class declaration)")
-		panic(err)
+    panic(err)
 		return nil, err
 	}
 
-	return t.values[0].Eval(scope)
+  res, err := t.values[0].Eval(scope)
+  if err != nil {
+    return nil, err
+  }
+
+	return ChangeContext(res, t.Context()), nil
 }
 
 func (t *Parens) EvalLazy(tag FinalTag) (Token, error) {
 	if len(t.values) != 1 || t.alts[0] != nil {
 		errCtx := t.Context()
 		err := errCtx.NewError("Error: bad parens (not a function or class declaration)")
-		panic(err)
 		return nil, err
 	}
 
@@ -100,9 +102,13 @@ func (t *Parens) EvalAsArgs(scope Scope) (*Parens, error) {
         return nil, errCtx.NewError("Error: after kwargs")
       }
 
-      values[i], err = v.Eval(scope)
-      if err != nil {
-        return nil, err
+      if !IsMultiParens(v) {
+        values[i], err = v.Eval(scope)
+        if err != nil {
+          return nil, err
+        }
+      } else {
+        values[i] = v // merged afterwards
       }
 
       alts[i] = nil
@@ -139,7 +145,7 @@ func (t *Parens) EvalAsArgs(scope Scope) (*Parens, error) {
     }
   }
 
-  return NewParens(values, alts, t.Context()), nil
+  return NewParens(values, alts, t.Context()).mergeSubParens()
 }
 
 func (t *Parens) EvalAsArgsLazy(tag FinalTag) (*Parens, error) {
@@ -157,9 +163,13 @@ func (t *Parens) EvalAsArgsLazy(tag FinalTag) (*Parens, error) {
         return nil, errCtx.NewError("Error: after kwargs")
       }
 
-      values[i], err = v.EvalLazy(tag)
-      if err != nil {
-        return nil, err
+      if !IsMultiParens(v) {
+        values[i], err = v.EvalLazy(tag)
+        if err != nil {
+          return nil, err
+        }
+      } else {
+        values[i] = v // merged afterwards
       }
 
       alts[i] = nil
@@ -196,7 +206,7 @@ func (t *Parens) EvalAsArgsLazy(tag FinalTag) (*Parens, error) {
     }
   }
 
-  return NewParens(values, alts, t.Context()), nil
+  return NewParens(values, alts, t.Context()).mergeSubParens()
 }
 
 func (t *Parens) AssertUniqueNames() error {
@@ -296,6 +306,14 @@ func IsParens(t Token) bool {
 	return ok
 }
 
+func IsMultiParens(t Token) bool {
+	if p, ok := t.(*Parens); ok {
+    return p.Len() != 1
+  } else {
+    return false
+  }
+}
+
 func AssertParens(t Token) (*Parens, error) {
 	p, ok := t.(*Parens)
 	if !ok {
@@ -323,4 +341,55 @@ func (t *Parens) ToRawDict() *RawDict {
   }
 
   return NewValuesRawDict(keys, values, t.Context())
+}
+
+func (t *Parens) mergeSubParens() (*Parens, error) {
+  haveSubParens := false
+  for i, val := range t.values {
+    alt := t.alts[i]
+    if _, ok := val.(*Parens); ok {
+      if alt != nil {
+        errCtx := alt.Context()
+        return nil, errCtx.NewError("Error: unexpected")
+      }
+
+      haveSubParens = true
+    } else if alt != nil {
+      if _, ok := alt.(*Parens); ok {
+        errCtx := alt.Context()
+        return nil, errCtx.NewError("Error: unexpected")
+      }
+    }
+  }
+
+  if !haveSubParens {
+    return t, nil
+  } else {
+    vals := make([]Token, 0)
+    alts := make([]Token, 0)
+
+    for i, val := range t.values {
+      alt := t.alts[i]
+
+      if sub, ok := val.(*Parens); ok {
+        if alt != nil {
+          errCtx := alt.Context()
+          return nil, errCtx.NewError("Error: unexpected")
+        }
+
+        vals = append(vals, sub.Values()...)
+        alts = append(alts, sub.Alts()...)
+      } else {
+        if alt != nil && IsParens(alt) {
+          errCtx := alt.Context()
+          return nil, errCtx.NewError("Error: unexpected")
+        }
+
+        vals = append(vals, val)
+        alts = append(alts, alt)
+      }
+    }
+
+    return NewParens(vals, alts, t.Context()), nil
+  }
 }

@@ -88,7 +88,7 @@ func (p *TemplateParser) cssTokensToStrFn(ts []raw.Token) (html.Token, error) {
   }
 
   buildDollar := func(ts_ []raw.Token) error {
-    // insert "str" word token between any dollar and parens
+    // insert "str" word token between any dollar and parens (also turning the parens into something evaluateable)
     ts := make([]raw.Token, 0)
     for i, t := range ts_ {
       ts = append(ts, t)
@@ -516,6 +516,8 @@ func (p *TemplateParser) buildStyleDirective(indent int, ts []raw.Token) (*html.
   } else {
     nameHtmlToken := html.NewValueString(nameToken.Value(), nameToken.Context())
     varAttr := html.NewEmptyRawDict(ctx)
+    varAttr.Set(html.NewValueString("names", nameToken.Context()),
+    html.NewValuesList([]html.Token{nameHtmlToken}, nameToken.Context()))
 
     if nameArgs != nil {
       //statements := []html.Token{dict}
@@ -524,11 +526,11 @@ func (p *TemplateParser) buildStyleDirective(indent int, ts []raw.Token) (*html.
       //index := html.NewValueInt(0, ctx)
       //wrapper := html.NewFunction("get", []html.Token{list, index}, ctx)
 
-      varAttr.Set(nameHtmlToken, html.NewFunction("function", []html.Token{nameArgs, dict}, ctx))
+      varAttr.Set(html.NewValueString("value", ctx), html.NewFunction("function", []html.Token{nameArgs, dict}, ctx))
     } else {
-      varAttr.Set(nameHtmlToken, dict)
+      varAttr.Set(html.NewValueString("value", dict.Context()), dict)
     }
 
-    return html.NewDirectiveTag("var", varAttr, []*html.Tag{}, ctx), ts, nil
+    return html.NewDirectiveTag(patterns.TEMPLATE_VAR_KEYWORD, varAttr, []*html.Tag{}, ctx), ts, nil
   } 
 }

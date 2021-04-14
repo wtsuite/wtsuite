@@ -213,7 +213,7 @@ func (t *VisibleTagData) WriteWrappedAutoHref(indent string, nl, tab string) str
 		t.id = ""
 	}
 
-	b.WriteString(t.write(false, "", nl, tab))
+	b.WriteString(t.write(false, indent, nl, tab))
 
 	if autoLink {
 		t.id = id

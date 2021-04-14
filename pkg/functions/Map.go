@@ -15,20 +15,19 @@ func Map(scope tokens.Scope, args_ *tokens.Parens, ctx context.Context) (tokens.
 		return nil, ctx.NewError("Error: expected 2 arguments")
 	}
 
-	arg0, err := args[0].Eval(scope)
-	if err != nil {
-		return nil, err
-	}
+  arg0 := args[0]
+
+  if scope.Permissive() && tokens.IsNull(arg0) {
+    // return empty list
+    return tokens.NewValuesList([]tokens.Token{}, ctx), nil
+  }
 
 	list, err := tokens.AssertList(arg0)
 	if err != nil {
 		return nil, err
 	}
 
-	arg1, err := args[1].Eval(scope)
-	if err != nil {
-		return nil, err
-	}
+  arg1 := args[1]
 
 	fn, err := AssertFun(arg1)
 	if err != nil {

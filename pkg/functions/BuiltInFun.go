@@ -49,6 +49,9 @@ func (f *BuiltInFun) EvalFun(scope tokens.Scope, args *tokens.Parens, ctx contex
 }
 
 // preferred length of internal functions, eg. for use in map
+// -1 means any number of arguments
+// XXX: should probably panic if not yet registered
+// XXX: return array of ints for special functions?
 func (f *BuiltInFun) Len() int {
 	switch f.name {
 	case "uid":

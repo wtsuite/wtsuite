@@ -67,9 +67,9 @@ func (p *Array) Check(other_ values.Interface, ctx context.Context) error {
     if p.content == nil {
       return nil
     } else if other.content == nil{
-      return ctx.NewError("Error: expected Array<" + p.content.TypeName() + ">, got Array<any>")
+      return ctx.NewError("Error: expected " + p.Name() + ", got Array<any>")
     } else if p.content.Check(other.content, ctx) != nil {
-      return ctx.NewError("Error: expected Array<" + p.content.TypeName() + ">, got Array<" + other.content.TypeName() + ">")
+      return ctx.NewError("Error: expected " + p.Name() + ", got " + other.Name())
     } else {
       return nil
     }
@@ -159,6 +159,7 @@ func (p *Array) GetInstanceMember(key string, includePrivate bool, ctx context.C
         []values.Value{content, i, i},
       }, ctx), nil
   case "join":
+    // TODO: error if content isn't any or stringable?
     return values.NewOverloadedFunction(
       [][]values.Value{
         []values.Value{s},

@@ -9,11 +9,11 @@ type Any struct {
 }
 
 func NewAny(ctx context.Context) Value {
-	return &Any{ValueData{ctx}}
+	return &Any{newValueData(ctx)}
 }
 
 func NewAll(ctx context.Context) Value {
-  return &Any{ValueData{ctx}}
+  return &Any{newValueData(ctx)}
 }
 
 func (v *Any) TypeName() string {

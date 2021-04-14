@@ -252,7 +252,9 @@ func (m *ModuleData) MinimalDependencies(allModules map[string]Module) []string 
       panic("all modules should be available at this point")
     }
 
-    res = append(res, depModule.SymbolDependencies(allModules, oldName)...)
+    symbolDeps := depModule.SymbolDependencies(allModules, oldName)
+
+    res = append(res, symbolDeps...)
   }
 
   return res
@@ -262,13 +264,13 @@ func (m *ModuleData) SymbolDependencies(allModules map[string]Module, name strin
   thisCtx := m.Context()
   thisPath := thisCtx.Path()
 
-  if name == "" || name == "*" { // include all Dependencies, and self too
-    res_ := m.Dependencies()
+  if name == "" || name == "*" { // include all MinimalDependencies, and self too
+    res_ := m.MinimalDependencies(allModules)
 
     res := []string{thisPath}
 
     for _, r := range res_ {
-      res = append(res, r.Path)
+      res = append(res, r)
     }
 
     return res

@@ -24,6 +24,7 @@ var (
 type CmdArgs struct {
   inputFile string
   outputFile string
+  globals map[string]string
 
   autoDownload bool
   verbosity int
@@ -43,6 +44,7 @@ func parseArgs() CmdArgs {
 	cmdArgs := CmdArgs{
 		inputFile:     "",
 		outputFile:    DEFAULT_OUTPUTFILE,
+    globals: make(map[string]string),
     autoDownload:  false,
 		verbosity:     0,
 	}
@@ -53,6 +55,8 @@ func parseArgs() CmdArgs {
     []parsers.CLIOption{
       parsers.NewCLIVersion("", "version",   "--version    Show version", VERSION),
       parsers.NewCLIUniqueFile("o", "output"        , "-o, --output <file>    Defaults to \"" + DEFAULT_OUTPUTFILE + "\" if not set", false, &(cmdArgs.outputFile)),
+      parsers.NewCLIUniqueKeyValue("D"                 , "-D<name> <value>              Define a global variable with a string value", cmdArgs.globals),
+      parsers.NewCLIUniqueKey("B"                      , "-B<name>                      Define a global flag (its value is an empty string)", cmdArgs.globals),
       parsers.NewCLIUniqueFlag("", "auto-download"         , "--auto-download                   Automatically download missing packages (use wt-pkg-sync if you want to do this manually). Doesn't update packages!", &(cmdArgs.autoDownload)), 
       parsers.NewCLIUniqueFlag("l", "latest"        , "-l, --latest           Ignore max semver, use latest tagged versions of dependencies", &(files.LATEST)),
       parsers.NewCLICountFlag("v", ""               , "-v[v[v..]]             Verbosity", &(cmdArgs.verbosity)),
@@ -75,6 +79,10 @@ func setUpEnv(cmdArgs CmdArgs) error {
 	VERBOSITY = cmdArgs.verbosity
 	files.VERBOSITY = cmdArgs.verbosity
 	parsers.VERBOSITY = cmdArgs.verbosity
+
+	for k, v := range cmdArgs.globals {
+		directives.RegisterDefine(k, v)
+	}
 
   return files.ResolvePackages(cmdArgs.inputFile)
 }
