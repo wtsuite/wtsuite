@@ -321,13 +321,5 @@ func WriteGlobalHeaders(nl string, tab string) string {
 	b.WriteString("}")
 	b.WriteString(nl)
 
-  b.WriteString("class Tuple extends Array{")
-  b.WriteString(nl)
-  b.WriteString(tab)
-  b.WriteString("constructor(...x){let n=x.length;super(n);for(let i=0;i<n;i++){this[i]=x[i]}}")
-  b.WriteString(nl)
-  b.WriteString("}")
-  b.WriteString(nl)
-
 	return b.String()
 }
