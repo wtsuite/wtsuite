@@ -228,7 +228,9 @@ func AssertBracesGroup(t Token) (*Group, error) {
 	gr, err := AssertGroup(t)
 	if err != nil || !gr.IsBraces() {
 		errCtx := t.Context()
-		return nil, errCtx.NewError("Error: expected {...}")
+    err := errCtx.NewError("Error: expected {...}")
+    panic(err)
+		return nil, err
 	}
 
 	return gr, nil
@@ -583,4 +585,23 @@ func ExpandAll(ts []Token) []Token {
   }
 
   return res
+}
+
+
+func GroupTypeName(t_ Token) string {
+  if t, ok := t_.(*Symbol); ok {
+    switch (t.Value()) {
+      case "[", "]", "<", ">":
+        return "bracket"
+      case "{", "}":
+        return "brace"
+      case "(", ")":
+        return "parenthesis" // plural: parentheses
+      default:
+        return "group"
+    }
+  } else {
+    return "group"
+  }
+  
 }

@@ -131,8 +131,10 @@ func BuildFile(cache *FileCache, path string, isRoot bool, parameters *tokens.Pa
 			}
 		}
 
-		//UnsetURL(fileScope)
-    //cache.Set(path, parameters, fileScope, node)
+    if isRoot && RELATIVE {
+      ps := fileScope.PagesWithRelURLs()
+      cache.Remove(ps)
+    }
 	}
 
 	return fileScope, node, nil
@@ -221,6 +223,18 @@ func importExport(dstScope Scope, node Node, export bool, tag *tokens.Tag) error
     return err
   }
 
+  if RELATIVE {
+    ps := srcScope.PagesWithRelURLs()
+    for _, p := range ps {
+      dstScope.NotifyRelativeURL(p)
+    }
+
+    // if any upstream dependency contains rel urls, it is like this file also contains a rel url (and must at root level be removed from cache
+    if len(ps) > 0 {
+      dstScope.NotifyRelativeURL(ctx.Path())
+    }
+  }
+
   addCacheDependency(dynamic, ctx.Path(), absPath)
 
   if namespaceToken, ok := namesToken.Get("*"); ok {
@@ -284,6 +298,18 @@ func evalDynamicImport(scope Scope, args_ *tokens.Parens, ctx context.Context) (
   importedScope, _, err := BuildFile(scope.GetCache(), absPath, false, nil)
   if err != nil {
     return nil, err
+  }
+
+  if RELATIVE {
+    ps := importedScope.PagesWithRelURLs()
+    for _, p := range ps {
+      scope.NotifyRelativeURL(p)
+    }
+
+    // if any upstream dependency contains rel urls, it is like this file also contains a rel url (and must at root level be removed from cache
+    if len(ps) > 0 {
+      scope.NotifyRelativeURL(ctx.Path())
+    }
   }
 
   if importedScope.HasTemplate(nameToken.Value()) {

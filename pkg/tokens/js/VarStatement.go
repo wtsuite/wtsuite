@@ -197,7 +197,8 @@ func (t *VarStatement) ResolveStatementNames(scope Scope) error {
       } else {
         value = typeVal
       }
-    } else if t.varType == AUTOLET {
+    } else if t.varType == AUTOLET || t.varType == CONST {
+      // set later (during Eval types stage)
       value = nil
     }
 
@@ -232,7 +233,7 @@ func (t *VarStatement) ResolveStatementNames(scope Scope) error {
 }
 
 func (t *VarStatement) EvalStatement() error {
-	for _, expr_ := range t.exprs {
+	for i, expr_ := range t.exprs {
 		switch expr := expr_.(type) {
 		case *Assign:
 			rhsValue, err := expr.rhs.EvalExpression()
@@ -247,7 +248,7 @@ func (t *VarStatement) EvalStatement() error {
 
 			variable := nameExpr.GetVariable()
 
-      if t.varType == AUTOLET {
+      if t.varType == AUTOLET || (t.varType == CONST && t.typeExprs[i] == nil) {
         rhsValue = values.RemoveLiteralness(rhsValue)
         variable.SetValue(rhsValue)
       }  else {

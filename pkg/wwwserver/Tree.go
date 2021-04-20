@@ -205,3 +205,13 @@ func (t *Tree) ServeFrozen(resp *ResponseWriter, req *http.Request) error {
     return t.notFound.ServeStatus(resp, req, http.StatusNotFound)
 	}
 }
+
+func (t *Tree) Freeze() error {
+  for _, resource := range t.files {
+    if err := resource.Freeze(); err != nil {
+      return err
+    }
+  }
+
+  return nil
+}

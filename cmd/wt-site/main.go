@@ -138,7 +138,7 @@ func parseArgs() CmdArgs {
   return cmdArgs
 }
 
-func setUpEnv(cmdArgs CmdArgs, cfg *SiteConfig) error {
+func setUpEnv(cmdArgs CmdArgs) error {
 	if cmdArgs.compactOutput {
 		patterns.NL = ""
 		patterns.TAB = ""
@@ -150,7 +150,7 @@ func setUpEnv(cmdArgs CmdArgs, cfg *SiteConfig) error {
 
   if cmdArgs.autoDownload {
     git.RegisterFetchPublicOrPrivate()
-  }
+  } 
 
   lst := make([]string, 0)
 	for k, v := range cmdArgs.globals {
@@ -184,9 +184,6 @@ func setUpEnv(cmdArgs CmdArgs, cfg *SiteConfig) error {
 	scripts.VERBOSITY = cmdArgs.verbosity
 
   files.LoadDepTree(cmdArgs.outputDir, b.String(), cmdArgs.forceRebuild)
-
-  directives.MATH_FONT_URL = cfg.MathFontURL()
-  styles.SaveMathFont(cfg.MathFontDst())
 
   return nil
 }
@@ -266,12 +263,23 @@ func cleanURL(url string) string {
 }
 
 func cleanLink(this string, link string) string {
-  this = cleanURL(this)[1:]
+  this = cleanURL(this)
 
-  if len(strings.Split(this, "/")) > 1 {
-    return cleanURL(link)
+  if directives.RELATIVE {
+    relURL, err := filepath.Rel(filepath.Dir(this), cleanURL(link))
+    if err != nil {
+      panic(err)
+    }
+
+    return relURL
   } else {
-    return cleanURL(link)[1:]
+   this = this[1:]
+
+   if len(strings.Split(this, "/")) > 1 {
+      return cleanURL(link)
+    } else {
+      return cleanURL(link)[1:]
+    }
   }
 }
 
@@ -311,6 +319,10 @@ func buildSiteStyles(cfg *SiteConfig, cmdArgs CmdArgs) error {
 
 func buildSitePages(cfg *SiteConfig, cmdArgs CmdArgs) error {
   cache := directives.NewFileCache()
+
+  for _, file := range cfg.Files {
+    directives.RegisterURL(file.src, file.url)
+  }
 
   for _, page := range cfg.Pages {
     if len(page.params) == 0 {
@@ -430,14 +442,19 @@ func buildSite(cmdArgs CmdArgs, cfg *SiteConfig) error {
 func main() {
   cmdArgs := parseArgs()
 
+  // need to set up env first (especially the autoDownload registration), because config reading might depend on imports
+  if err := setUpEnv(cmdArgs); err != nil {
+		printMessageAndExit(err.Error())
+  }
+
   cfg, err := ReadConfigFile(cmdArgs.configFile, cmdArgs.outputDir)
   if err != nil {
     printMessageAndExit(err.Error())
   }
 
-  if err := setUpEnv(cmdArgs, cfg); err != nil {
-		printMessageAndExit(err.Error())
-  }
+  // remainder of enb
+  directives.MATH_FONT_URL = cfg.MathFontURL()
+  styles.SaveMathFont(cfg.MathFontDst())
 
 	if cmdArgs.profFile != "" {
     startProfiling(cmdArgs.profFile)

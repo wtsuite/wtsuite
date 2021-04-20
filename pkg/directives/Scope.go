@@ -14,6 +14,7 @@ import (
 type Scope interface {
 	Parent() Scope
   Permissive() bool
+  NotifyRelativeURL(path string)
 
 	HasVar(key string) bool
 	GetVar(key string) functions.Var

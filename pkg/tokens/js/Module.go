@@ -239,11 +239,10 @@ func (m *ModuleData) Dependencies() []files.PathLang {
 	return result
 }
 
-func (m *ModuleData) MinimalDependencies(allModules map[string]Module) []string {
+func (m *ModuleData) minimalDependencies(allModules map[string]Module, includeAggregateExports bool) []string {
   res := make([]string, 0)
 
-  // in this case ignore the aggregate exports, and just look at the imports
-  for _, iv := range m.importedNames {
+  fnInner := func(iv *ImportedVariable) {
     oldName := iv.old
     // oldName can also be "*" or ""
 
@@ -257,15 +256,40 @@ func (m *ModuleData) MinimalDependencies(allModules map[string]Module) []string 
     res = append(res, symbolDeps...)
   }
 
+  for _, iv := range m.importedNames {
+    fnInner(iv)
+  }
+
+  if includeAggregateExports {
+    for _, iv := range m.aggregateExports {
+      fnInner(iv)
+    }
+  }
+
   return res
+}
+
+func (m *ModuleData) MinimalDependencies(allModules map[string]Module) []string {
+  return m.minimalDependencies(allModules, false)
 }
 
 func (m *ModuleData) SymbolDependencies(allModules map[string]Module, name string) []string {
   thisCtx := m.Context()
   thisPath := thisCtx.Path()
 
-  if name == "" || name == "*" { // include all MinimalDependencies, and self too
+  if name == "" { // include all MinimalDependencies, and self too
     res_ := m.MinimalDependencies(allModules)
+
+    res := []string{thisPath}
+
+    for _, r := range res_ {
+      res = append(res, r)
+    }
+
+    return res
+  } else if name == "*" {
+    // TODO: figure out how to optimize this
+    res_ := m.minimalDependencies(allModules, true)
 
     res := []string{thisPath}
 

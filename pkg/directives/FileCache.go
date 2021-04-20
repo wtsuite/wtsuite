@@ -1,6 +1,7 @@
 package directives
 
 import (
+  "strings"
   "sync"
 
   tokens "github.com/wtsuite/wtsuite/pkg/tokens/html"
@@ -21,11 +22,44 @@ func NewFileCache() *FileCache {
   return &FileCache{make(map[string]fileCacheEntry), &sync.RWMutex{}}
 }
 
+func (c *FileCache) List() []string {
+  res := make([]string, 0)
+
+  for k, _ := range c.entries {
+    res = append(res, k)
+  }
+
+  return res
+}
+
+func (c *FileCache) Remove(paths []string) {
+  c.mutex.Lock()
+
+  toRemove := make([]string, 0)
+
+  for k_, _ := range c.entries {
+    // drop the parameter part from the key
+    k := strings.Split(k_, "#")[0]
+
+    for _, p := range paths {
+      if p == k {
+        toRemove = append(toRemove, k_)
+      }
+    }
+  }
+
+  for _, k := range toRemove {
+    delete(c.entries, k)
+  }
+  
+  c.mutex.Unlock()
+}
+
 func pathAndParametersToKey(path string, parameters *tokens.Parens) string {
   key := path
 
   if parameters != nil {
-    key += parameters.Dump("")
+    key += "#" + parameters.Dump("")
   }
 
   return key

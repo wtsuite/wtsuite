@@ -1,12 +1,15 @@
 package directives
 
 import (
+  "path/filepath"
+
 	"github.com/wtsuite/wtsuite/pkg/functions"
 	"github.com/wtsuite/wtsuite/pkg/tokens/context"
 	tokens "github.com/wtsuite/wtsuite/pkg/tokens/html"
 )
 
 const URL = "__url__"
+var RELATIVE = true
 var IGNORE_UNSET_URLS = false
 
 var _fileURLs map[string]string = nil
@@ -64,7 +67,17 @@ func evalFileURL(scope Scope, args_ *tokens.Parens, ctx context.Context) (tokens
   filePath := filePathToken.Value()
 
 	if url, ok := _fileURLs[filePath]; ok {
-		return tokens.NewValueString(url, ctx), nil
+    if (RELATIVE && _activeURL != nil) {
+      relPath, err := filepath.Rel(filepath.Dir(_activeURL.Value()), url)
+      if err != nil {
+        return nil, err
+      }
+
+      scope.NotifyRelativeURL(ctx.Path())
+      url = relPath
+    }
+
+    return tokens.NewValueString(url, ctx), nil
 	} else {
     if !IGNORE_UNSET_URLS {
       return nil, ctx.NewError("Error: url for '" + filePath + "' not set")

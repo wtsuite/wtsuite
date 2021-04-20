@@ -1,6 +1,8 @@
 package js
 
 import (
+  "fmt"
+  "reflect"
 	"strings"
 
 	"github.com/wtsuite/wtsuite/pkg/tokens/context"
@@ -23,7 +25,7 @@ type TypeExpressionMember struct {
 func NewTypeExpression(name string, parameterKeys []*Word, 
   parameterTypes []*TypeExpression, ctx context.Context) (*TypeExpression, error) {
 	if parameterKeys != nil && parameterTypes != nil && len(parameterKeys) != len(parameterTypes) {
-		panic("parameterKeys and parameterTypes should have same length")
+		panic(ctx.NewError("parameterKeys and parameterTypes should have same length").Error())
 	}
 
   var parameters []*TypeExpressionMember = nil
@@ -542,6 +544,7 @@ func (t *TypeExpression) EvalExpression() (values.Value, error) {
         return values.NewContextValue(ta, ctx), nil
       }
       
+      fmt.Println(t, reflect.TypeOf(t.GetVariable().GetObject()).String())
       // it might be a regular value (i.e. from a type interface)
       return nil, ctx.NewError("Error: expected an interface or type alias")
     }

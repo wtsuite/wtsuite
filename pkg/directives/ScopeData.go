@@ -35,6 +35,12 @@ func (s *ScopeData) Permissive() bool {
   }
 }
 
+func (s *ScopeData) NotifyRelativeURL(path string) {
+  if s.parent != nil {
+    s.parent.NotifyRelativeURL(path)
+  } 
+}
+
 func formatValidVarNames(lst []string) string {
 	var b strings.Builder
 

@@ -101,10 +101,11 @@ func (p *JSParser) buildFunctionArgument(ts []raw.Token,
 					defTokens = ts[i+1:]
 					break
 				} else if !(raw.IsSymbol(ts[i], patterns.PERIOD) ||
-					raw.IsAngledGroup(ts[i]) ||
-					raw.IsAnyWord(ts[i])) {
+					raw.IsGroup(ts[i]) ||
+					raw.IsAnyWord(ts[i]) ||
+          raw.IsSymbol(ts[i], patterns.ARROW)) {
 					errCtx := ts[i].Context()
-					return nil, errCtx.NewError("Error: unexpected")
+					return nil, errCtx.NewError("Error: unexpected function interface token")
 				}
 			}
 
@@ -177,6 +178,10 @@ func (p *JSParser) buildFunctionRole(ts []raw.Token) (prototypes.FunctionRole, e
 	}
 
 	return role, nil
+}
+
+func IsFunctionBody(t raw.Token) bool {
+  return raw.IsBracesGroup(t) && !IsKeyedObjectTypeExpression(t)
 }
 
 func (p *JSParser) buildFunctionInterface(ts []raw.Token,
@@ -260,22 +265,24 @@ func (p *JSParser) buildFunctionInterface(ts []raw.Token,
 	}
 
 	// return value might be specified
-	if len(ts) > 0 && raw.IsAnyWord(ts[0]) {
-		iLastRetTypeToken := 1
+	if len(ts) > 0 {
+		iLastRetTypeToken := -1
 		for i, t := range ts {
-			if raw.IsSymbol(t, patterns.ARROW) || raw.IsBracesGroup(t) {
+			if raw.IsSymbol(t, patterns.ARROW) || IsFunctionBody(t) {
 				break
-			}
+			} 
 			iLastRetTypeToken = i
 		}
 
-		retType, err := p.buildTypeExpression(ts[0:iLastRetTypeToken+1])
-		if err != nil {
-			return nil, nil, err
-		}
+    if iLastRetTypeToken != -1 {
+      retType, err := p.buildTypeExpression(ts[0:iLastRetTypeToken+1])
+      if err != nil {
+        return nil, nil, err
+      }
 
-		fnInterf.SetReturnType(retType)
-		ts = ts[iLastRetTypeToken+1:]
+      fnInterf.SetReturnType(retType)
+      ts = ts[iLastRetTypeToken+1:]
+    }
 	}
 
 	return fnInterf, ts, nil
@@ -288,7 +295,7 @@ func (p *JSParser) buildFunction(ts []raw.Token, named bool,
 	// get the correct function context
 	iFirstBrace := 0
 	for i, t := range ts {
-		if raw.IsBracesGroup(t) {
+		if IsFunctionBody(t) {
 			iFirstBrace = i
 			break
 		}
@@ -358,13 +365,6 @@ func (p *JSParser) buildFunctionStatement(ts []raw.Token) (*js.Function,
 		errCtx := raw.MergeContexts(ts...)
 		return nil, nil, errCtx.NewError("Error: bad function statement")
 	}
-
-	//if !(raw.IsAnyWord(ts[1]) && raw.IsParensGroup(ts[2]) && raw.IsBracesGroup(ts[3])) {
-	//errCtx := raw.MergeContexts(ts...)
-	//return nil, nil, errCtx.NewError("Error: bad function statement")
-	//}
-
-	//remaining := stripSeparators(4, ts, patterns.SEMICOLON)
 
 	fn, remaining, err := p.buildFunction(ts, true, false)
 	if err != nil {

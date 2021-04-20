@@ -1,6 +1,8 @@
 package js
 
 import (
+  "fmt"
+
   "github.com/wtsuite/wtsuite/pkg/tokens/js/values"
 
 	"github.com/wtsuite/wtsuite/pkg/tokens/context"
@@ -66,6 +68,7 @@ func (t *VariableData) SetConstant() {
 func (t *VariableData) GetValue() values.Value {
   if t.value == nil {
     hereCtx := t.Context()
+    fmt.Println("hint: a possible cause is that some files are hidden during the depency tree construction")
     here := hereCtx.NewError("here: " + t.Name())
     panic(here.Error())
   }

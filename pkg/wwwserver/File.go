@@ -47,3 +47,7 @@ func (f *File) ServeStatus(resp *ResponseWriter, req *http.Request, status int) 
 
   return f.FileData.ServeStatus(resp, req, status)
 }
+
+func (f *File) Freeze() error {
+  return f.cache()
+}

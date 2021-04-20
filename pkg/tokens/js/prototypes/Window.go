@@ -59,8 +59,10 @@ func NewRequestIdleCallbackFunction(ctx context.Context) values.Value {
 }
 
 func (p *Window) GetInstanceMember(key string, includePrivate bool, ctx context.Context) (values.Value, error) {
+  a := values.NewAny(ctx)
   f := NewNumber(ctx)
   s := NewString(ctx)
+  w := NewWindow(ctx)
 
   switch key {
   case "atob", "btoa":
@@ -87,8 +89,8 @@ func (p *Window) GetInstanceMember(key string, includePrivate bool, ctx context.
     return NewNavigator(ctx), nil
   case "open":
     return values.NewOverloadedMethodLikeFunction([][]values.Value{
-      []values.Value{s, NewWindow(ctx)},
-      []values.Value{s, s, NewWindow(ctx)},
+      []values.Value{s, w},
+      []values.Value{s, s, w},
     }, ctx), nil
   case "requestAnimationFrame":
     fn := values.NewFunction([]values.Value{f, nil}, ctx)
@@ -102,6 +104,13 @@ func (p *Window) GetInstanceMember(key string, includePrivate bool, ctx context.
     return values.NewFunction([]values.Value{f, f, nil}, ctx), nil
   case "setInterval", "setTimeout":
     return NewSetTimeoutFunction(ctx), nil
+  case "parent":
+    return w, nil
+  case "postMessage":
+    return values.NewOverloadedFunction([][]values.Value{
+      []values.Value{s, s, nil},
+      []values.Value{s, s, a, nil},
+    }, ctx), nil
   default:
     return nil, nil
   }

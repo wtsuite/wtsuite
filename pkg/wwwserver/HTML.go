@@ -82,3 +82,7 @@ func (h *HTML) ServeStatus(resp *ResponseWriter, req *http.Request, status int) 
 
   return h.FileData.ServeStatus(resp, req, status)
 }
+
+func (h *HTML) Freeze() error {
+  return h.cache()
+}

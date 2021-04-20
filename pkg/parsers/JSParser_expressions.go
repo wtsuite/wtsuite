@@ -331,7 +331,7 @@ func (p *JSParser) buildTypeExpressionContent(gr *raw.Group) ([]*js.Word, []*js.
 
   if len(gr.Fields) == 0 || len(gr.Fields[0]) == 0 {
     // empty content types, usefull for empty objects
-    contentKeys = make([]*js.Word, 0)
+    //contentKeys = make([]*js.Word, 0)
   } else {
 
     somePositional := false
@@ -360,6 +360,11 @@ func (p *JSParser) buildTypeExpressionContent(gr *raw.Group) ([]*js.Word, []*js.
         if !someKeyed {
           contentKeys = make([]*js.Word, 0)
           someKeyed = true
+
+          if !gr.IsBraces() {
+            errCtx := field[0].Context()
+            return nil, nil, errCtx.NewError("Error: only braces can contain keyed content")
+          }
         }
 
         components := splitBySeparator(field, patterns.COLON)
@@ -386,6 +391,43 @@ func (p *JSParser) buildTypeExpressionContent(gr *raw.Group) ([]*js.Word, []*js.
   }
 
   return contentKeys, contentTypes, nil
+}
+
+func IsKeyedObjectTypeExpression(t_ raw.Token) bool {
+  t, ok := t_.(*raw.Group)
+  if !ok {
+    return false
+  }
+
+  if !t.IsBraces() {
+    return false
+  }
+
+  if t.IsSemiColon() {
+    return false
+  }
+
+  if len(t.Fields) == 0 {
+    return false
+  }
+
+  for _, field := range t.Fields {
+    if raw.ContainsSymbol(field, patterns.COLON) {
+      components := splitBySeparator(field, patterns.COLON)
+
+      if len(components) != 2 || len(components[0]) != 1 {
+        return false
+      }
+
+      if !raw.IsAnyWord(components[0][0]) {
+        return false;
+      }
+    } else {
+      return false
+    }
+  }
+
+  return true
 }
 
 func (p *JSParser) buildTypeExpression(ts []raw.Token) (*js.TypeExpression, error) {
@@ -461,6 +503,9 @@ func (p *JSParser) buildTypeExpression(ts []raw.Token) (*js.TypeExpression, erro
       return nil, err
     }
 
+    /*if (contentKeys != nil && len(contentKeys) == len(contentTypes)) {
+      contentKeys = append(contentKeys, js.NewWord("", returnContentType.Context()))
+    }*/
     contentTypes = append(contentTypes, returnContentType)
 
     return js.NewTypeExpression("function", contentKeys, contentTypes, raw.MergeContexts(ts...))
@@ -471,22 +516,8 @@ func (p *JSParser) buildTypeExpression(ts []raw.Token) (*js.TypeExpression, erro
     }
 
     if len(braces.Fields) == 0 {
-      var contentTypes []*js.TypeExpression = nil
-      if len(ts) > 1 {
-        if  raw.IsAngledGroup(ts[1]) {
-          errCtx := ts[1].Context()
-          return nil, errCtx.NewError("Error: {}<...> should be {}...")
-        }
-
-        contentType, err := p.buildTypeExpression(ts[1:])
-        if err != nil {
-          return nil, err
-        }
-
-        contentTypes = []*js.TypeExpression{contentType}
-      }
-
-      return js.NewTypeExpression("Object", nil, contentTypes, braces.Context())
+      errCtx := raw.MergeContexts(ts...)
+      return nil, errCtx.NewError("Error: invalid type expression")
     } else {
       if len(ts) != 1 {
         errCtx := raw.MergeContexts(ts...)
@@ -496,6 +527,11 @@ func (p *JSParser) buildTypeExpression(ts []raw.Token) (*js.TypeExpression, erro
       contentKeys, contentTypes, err := p.buildTypeExpressionContent(braces)
       if err != nil {
         return nil, err
+      }
+      
+      if contentKeys == nil || len(contentKeys) != len(contentTypes) {
+        errCtx := braces.Context()
+        return nil, errCtx.NewError("Error: bad Object type")
       }
 
       return js.NewTypeExpression("Object", contentKeys, contentTypes, braces.Context())

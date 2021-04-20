@@ -524,7 +524,10 @@ func (p *Parser) nestGroups(ts []tokens.Token) ([]tokens.Token, error) {
 		} else if tokens.IsAnyNonAngledGroupStop(t) {
 			// ANGLED_STOP (i.e. >) can also be for math
 			errCtx := t.Context()
-			return nil, errCtx.NewError("Error: unmatched group")
+
+      name := tokens.GroupTypeName(t)
+
+			return nil, errCtx.NewError("Error: unmatched " + name)
 		} else {
 			result = append(result, t)
 

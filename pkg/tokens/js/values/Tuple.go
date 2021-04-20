@@ -48,7 +48,9 @@ func (v *Tuple) GetInterface() Interface {
 // if arrProto is defined (i.e. literal) then check as array
 // if not isLiteral then other must be Tuple as well (from which can't be inherited)
 func (v *Tuple) Check(other_ Value, ctx context.Context) error {
-  if v.arrProto != nil {
+  if IsAny(other_) {
+    return nil
+  } else if v.arrProto != nil {
     instance := NewInstance(v.arrProto, ctx)
     return instance.Check(other_, ctx)
   } else {

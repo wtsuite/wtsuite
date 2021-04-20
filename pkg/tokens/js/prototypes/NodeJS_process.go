@@ -17,4 +17,6 @@ func FillNodeJS_processPackage(pkg values.Package) {
   pkg.AddValue("exit", values.NewFunction([]values.Value{
     i, nil,
   }, ctx))
+
+  pkg.AddValue("env", NewMapLikeObject(s, ctx))
 }

@@ -10,7 +10,7 @@ import (
 
 type Function struct {
 	fi      *FunctionInterface
-	this    Variable // unique per function (although value might not be!)
+	this    Variable // only set for arrowFunctions inside classes, or when GetThisVariable() is called explicitely
 	isArrow bool     // arrow function use 'this' from parent
   ret     []*Return // registered via FunctionScope
 	Block
@@ -19,9 +19,7 @@ type Function struct {
 func NewFunction(fi *FunctionInterface, isArrow bool,
 	ctx context.Context) (*Function, error) {
 
-	this := NewVariable("this", true, ctx)
-
-	return &Function{fi, this, isArrow, make([]*Return, 0), newBlock(ctx)}, nil
+	return &Function{fi, nil, isArrow, make([]*Return, 0), newBlock(ctx)}, nil
 }
 
 func (t *Function) NewScope(parent Scope) *FunctionScope {
@@ -45,6 +43,10 @@ func (t *Function) Role() prototypes.FunctionRole {
 }
 
 func (t *Function) GetThisVariable() Variable {
+  if (t.this == nil) {
+    t.this = NewVariable("this", true, t.ctx)
+  }
+
 	return t.this
 }
 
@@ -155,17 +157,22 @@ func (t *Function) resolveExpressionNames(outer Scope, inner Scope) error {
 		return err
 	}
 
-	if t.isArrow && outer.HasVariable("this") {
-		this, err := outer.GetVariable("this")
-		if err != nil {
-			return err
-		}
-		t.this = this
+	if t.isArrow {
+    if outer.HasVariable("this") {
+      this, err := outer.GetVariable("this")
+      if err != nil {
+        return err
+      }
+
+      t.this = this
+    }
 	}
 
-	if err := inner.SetVariable("this", t.this); err != nil {
-		return err
-	}
+  if t.this != nil {
+    if err := inner.SetVariable("this", t.this); err != nil {
+      return err
+    }
+  }
 
 	if err := t.Block.HoistAndResolveStatementNames(inner); err != nil {
 		return err

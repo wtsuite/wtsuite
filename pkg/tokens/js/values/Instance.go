@@ -121,7 +121,7 @@ func FindInstanceMemberInterface(interf_ Interface, key string, includePrivate b
     }
   }
 
-  return nil, ctx.NewError("Error: " + interf_.Name() + "." + key + " not found")
+  return nil, ctx.NewError("Error: " + interf_.Name() + "." + key + " undefined")
 }
 
 func (v *Instance) GetMember(key string, includePrivate bool,
