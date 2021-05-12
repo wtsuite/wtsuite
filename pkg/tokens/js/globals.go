@@ -134,6 +134,8 @@ func FillCoreScope(scope Scope) {
   registerValue(scope, "console", pr.NewConsole(ctx))
   registerValue(scope, "setInterval", pr.NewSetTimeoutFunction(ctx))
   registerValue(scope, "setTimeout", pr.NewSetTimeoutFunction(ctx))
+  registerValue(scope, "btoa", pr.NewStringToStringFunction(ctx))
+  registerValue(scope, "atob", pr.NewStringToStringFunction(ctx))
 
   uriFn := values.NewFunction([]values.Value{pr.NewString(ctx), pr.NewString(ctx)}, ctx)
 
@@ -198,6 +200,8 @@ func FillBrowserScope(scope Scope) {
   registerPrototype(scope, pr.NewDOMMatrixPrototype())
   registerPrototype(scope, pr.NewDOMRectPrototype())
   registerPrototype(scope, pr.NewElementPrototype())
+  registerPrototype(scope, pr.NewFilePrototype())
+  registerPrototype(scope, pr.NewFileListPrototype())
   registerPrototype(scope, pr.NewFontFaceSetPrototype())
   registerPrototype(scope, pr.NewGLEnumPrototype(""))
   registerPrototype(scope, pr.NewHashChangeEventPrototype())

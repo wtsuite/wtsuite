@@ -27,6 +27,7 @@ func NewRouter(root string) (*Router, error) {
     wwwserver.DefaultIndexNames,
     wwwserver.DefaultMimeTypes,
     notFoundPath,
+    false,
   )
 
   if err != nil {

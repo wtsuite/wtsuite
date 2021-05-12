@@ -2,7 +2,7 @@ package wwwserver
 
 import (
   "bytes"
-  //"compress/gzip"
+  "compress/gzip"
   "crypto/md5"
 	"encoding/base64"
   "fmt"
@@ -14,18 +14,21 @@ import (
 )
 
 var COMPRESS = true
+const MIN_SIZE_FOR_COMPRESSION = 1400
 
 type FileData struct {
   path       string
   modTime    time.Time
+  accessTime time.Time
   mimeType   string
 	eTag       string
 	buf        *bytes.Reader
 	compressed *bytes.Reader
+  frozen     bool
 }
 
 func newFileData(path string, mimeType string) FileData {
-  return FileData{path, time.Time{}, mimeType, "", nil, nil}
+  return FileData{path, time.Time{}, time.Time{}, mimeType, "", nil, nil, false}
 }
 
 // error also returns false
@@ -64,8 +67,7 @@ func (f *FileData) cache(b []byte) {
 
   f.eTag = "\"" + base64.StdEncoding.EncodeToString(sum) + "\""
 
-  // XXX: does compression make sense for local development?
-  /*if len(b) > 1400 {
+  if len(b) > MIN_SIZE_FOR_COMPRESSION {
     cBytes := &bytes.Buffer{}
 
     cWriter := gzip.NewWriter(cBytes)
@@ -73,7 +75,7 @@ func (f *FileData) cache(b []byte) {
     cWriter.Close()
 
     f.compressed = bytes.NewReader(cBytes.Bytes())
-  }*/
+  }
 }
 
 func (f *FileData) ServeFrozen(resp *ResponseWriter, req *http.Request) error {
@@ -107,5 +109,11 @@ func (f *FileData) ServeStatus(resp *ResponseWriter, req *http.Request, status i
 		io.Copy(resp, f.buf)
 	}
 
+  f.accessTime = time.Now().In(time.UTC)
+
 	return nil
+}
+
+func (f *FileData) AccessTime() time.Time {
+  return f.accessTime
 }

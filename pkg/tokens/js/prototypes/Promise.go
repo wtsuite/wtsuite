@@ -130,10 +130,13 @@ func (p *Promise) GetInstanceMember(key string, includePrivate bool, ctx context
           []values.Value{values.NewFunction([]values.Value{a, a, a, self}, ctx), self},
         }, ctx), nil
     } else {
+      pa := NewPromise(a, ctx)
       return values.NewOverloadedMethodLikeFunction(
         [][]values.Value{
-          []values.Value{values.NewFunction([]values.Value{content, nil}, ctx), self},
+          []values.Value{values.NewFunction([]values.Value{content, nil}, ctx), NewVoidPromise(ctx)},
+          []values.Value{values.NewFunction([]values.Value{content, a}, ctx), pa},
           []values.Value{values.NewFunction([]values.Value{content, self}, ctx), self},
+          []values.Value{values.NewFunction([]values.Value{content, pa}, ctx), pa},
         }, ctx), nil
     }
   case ".resolve":

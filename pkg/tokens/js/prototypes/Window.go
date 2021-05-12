@@ -45,6 +45,12 @@ func NewSetTimeoutFunction(ctx context.Context) values.Value {
   }, ctx) 
 }
 
+func NewStringToStringFunction(ctx context.Context) values.Value {
+  s := NewString(ctx)
+
+  return values.NewFunction([]values.Value{s, s}, ctx)
+}
+
 func NewRequestIdleCallbackFunction(ctx context.Context) values.Value {
   fn := values.NewFunction([]values.Value{nil}, ctx)
 
@@ -66,7 +72,7 @@ func (p *Window) GetInstanceMember(key string, includePrivate bool, ctx context.
 
   switch key {
   case "atob", "btoa":
-    return values.NewFunction([]values.Value{s, s}, ctx), nil
+    return NewStringToStringFunction(ctx), nil
   case "blur", "close", "focus":
     return values.NewFunction([]values.Value{nil}, ctx), nil
   case "crypto":

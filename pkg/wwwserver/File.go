@@ -4,6 +4,7 @@ import (
   "errors"
 	"io/ioutil"
 	"net/http"
+  "path/filepath"
   
   "github.com/wtsuite/wtsuite/pkg/files"
 )
@@ -18,12 +19,22 @@ func NewFile(path string, mimeType string) (*File, error) {
 		return nil, errors.New("\""+path+"\" not found")
 	}
 
+  if mimeType == "" {
+    ext := filepath.Ext(path)
+
+    if mt, ok := DefaultMimeTypes[ext]; ok {
+      mimeType = mt
+    } else {
+      return nil, errors.New("couldn't find mimetype for " + ext)
+    }
+  }
+
 	return &File{newFileData(path, mimeType)}, nil
 }
 
 // dont cache the files in debug mode
 func (f *File) cache() error {
-	if f.buf == nil || !f.FileData.isUpToDate() {
+	if f.buf == nil || ((!f.frozen) && (!f.FileData.isUpToDate())) {
 		b, err := ioutil.ReadFile(f.path)
 		if err != nil {
 			return errors.New("unable to read file \""+f.path+"\" at serve time")
@@ -49,5 +60,7 @@ func (f *File) ServeStatus(resp *ResponseWriter, req *http.Request, status int) 
 }
 
 func (f *File) Freeze() error {
-  return f.cache()
+  err := f.cache()
+  f.frozen = true
+  return err
 }

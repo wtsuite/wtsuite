@@ -622,6 +622,20 @@ func CommitPush(srcDir string, dstURL string, sshKey string) error {
   return nil
 }
 
+func HeadHash(dir string) (string, error) {
+  repo, err := gitcore.PlainOpen(dir)
+  if err != nil {
+    return "", err
+  }
+
+  headRef, err := repo.Head()
+  if err != nil {
+    return "", err
+  }
+
+  return headRef.Hash().String(), nil
+}
+
 func FetchPublicOrPrivate(url string, svr *files.SemVerRange) (string, error) {
   dstBase := files.PkgInstallDir(url)
 

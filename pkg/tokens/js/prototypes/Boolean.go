@@ -43,7 +43,14 @@ func (p *Boolean) Check(other_ values.Interface, ctx context.Context) error {
 }
 
 func (p *Boolean) GetInstanceMember(key string, includePrivate bool, ctx context.Context) (values.Value, error) {
-  return nil, nil
+  s := NewString(ctx)
+
+  switch key {
+  case "toString":
+    return values.NewFunction([]values.Value{s}, ctx), nil
+  default:
+    return nil, nil
+  }
 }
 
 func (p *Boolean) GetClassValue() (*values.Class, error) {

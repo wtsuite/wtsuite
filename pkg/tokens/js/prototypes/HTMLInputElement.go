@@ -40,6 +40,8 @@ func (p *HTMLInputElement) GetInstanceMember(key string, includePrivate bool, ct
     return b, nil
   case "checkValidity":
     return values.NewFunction([]values.Value{b}, ctx), nil
+  case "files":
+    return NewFileList(ctx), nil
   case "selectionStart", "selectionEnd":
     return i, nil
   case "select":
